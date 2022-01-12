@@ -1,1 +1,1 @@
-# Livepeer Daemon
+# LivepeerManaged Daemon
