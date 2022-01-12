@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Core", "Daemon.Core\Daemon.Core.csproj", "{B7730566-03B2-43FA-B106-987278D393E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon", "Daemon\Daemon.csproj", "{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Updater", "Daemon.Updater\Daemon.Updater.csproj", "{8716EBBC-DACB-4FE4-B894-B93AA783690A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{B7730566-03B2-43FA-B106-987278D393E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7730566-03B2-43FA-B106-987278D393E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7730566-03B2-43FA-B106-987278D393E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
