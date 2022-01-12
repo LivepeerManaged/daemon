@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon", "Daemon\Daemon.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Updater", "Daemon.Updater\Daemon.Updater.csproj", "{8716EBBC-DACB-4FE4-B894-B93AA783690A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Basic", "Daemon.Basic\Daemon.Basic.csproj", "{2E4CE164-4760-4B31-9818-DB1F654A22B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8716EBBC-DACB-4FE4-B894-B93AA783690A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
