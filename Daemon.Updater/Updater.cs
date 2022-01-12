@@ -1,26 +1,20 @@
 ﻿namespace Daemon.Updater;
 
-public class Updater
-{
-    private const string UPDATER_URL = "";
-    
-    public Updater()
-    {
-        
-    }
+public class Updater {
+	private const string UPDATER_URL = "";
 
-    public bool IsUpdateCompatible()
-    {
-        return true;
-    }
-    
-    public bool HasUpdates()
-    {
-        return false;
-    }
+	public Updater() {
+	}
 
-    public bool ExecuteUpdate()
-    {
-        return true;
-    }
+	public bool IsUpdateCompatible() {
+		return true;
+	}
+
+	public bool HasUpdates() {
+		return false;
+	}
+
+	public bool ExecuteUpdate() {
+		return true;
+	}
 }
