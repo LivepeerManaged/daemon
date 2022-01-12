@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Daemon.Basic\Daemon.Basic.csproj" />
       <ProjectReference Include="..\Daemon.Updater\Daemon.Updater.csproj" />
     </ItemGroup>
 

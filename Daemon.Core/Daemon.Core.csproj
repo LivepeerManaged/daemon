@@ -10,4 +10,8 @@
       <OutputPath>..\lib\</OutputPath>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Daemon.Basic\Daemon.Basic.csproj" />
+    </ItemGroup>
+
 </Project>

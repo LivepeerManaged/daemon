@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Daemon.Basic;
 
 namespace Daemon;
 
@@ -20,9 +21,8 @@ public static class Program {
 
 		Assembly assembly = Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, "Daemon.Core.dll"));
 		Type mainClass = assembly.GetType("Daemon.Core.MainApp") ?? throw new InvalidOperationException();
-		dynamic? mainApp = Activator.CreateInstance(mainClass);
 
-		if (mainApp == null) {
+		if (Activator.CreateInstance(mainClass) is not IMainApp mainApp) {
 			return;
 		}
 

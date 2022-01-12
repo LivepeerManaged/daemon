@@ -1,6 +1,8 @@
-﻿namespace Daemon.Core;
+﻿using Daemon.Basic;
 
-public class MainApp {
+namespace Daemon.Core;
+
+public class MainApp : IMainApp {
 	public void StartApp() {
 		Console.WriteLine("It worked");
 	}
