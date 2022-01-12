@@ -10,9 +10,14 @@ public static class Program
 
         if (updater.HasUpdates())
         {
-            if (!updater.ExecuteUpdate())
+            if (!updater.IsUpdateCompatible())
             {
-                
+                // TODO: Tell the user that a manual update is required!
+                return;
+            } 
+            else if (!updater.ExecuteUpdate())
+            {
+                // TODO: Tell the user that the update couldn't proced correctly
                 return;
             }
             

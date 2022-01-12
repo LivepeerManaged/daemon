@@ -9,6 +9,11 @@ public class Updater
         
     }
 
+    public bool IsUpdateCompatible()
+    {
+        return true;
+    }
+    
     public bool HasUpdates()
     {
         return false;
