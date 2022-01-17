@@ -1,12 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Core", "Daemon.Core\Daemon.Core.csproj", "{B7730566-03B2-43FA-B106-987278D393E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC} = {0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon", "Daemon\Daemon.csproj", "{4D04CB12-AE42-40CF-BA6D-78ECCAB41DA7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Updater", "Daemon.Updater\Daemon.Updater.csproj", "{8716EBBC-DACB-4FE4-B894-B93AA783690A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Basic", "Daemon.Basic\Daemon.Basic.csproj", "{2E4CE164-4760-4B31-9818-DB1F654A22B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Shared", "Daemon.Shared\Daemon.Shared.csproj", "{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +35,9 @@ Global
 		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E4CE164-4760-4B31-9818-DB1F654A22B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2B8026-DD4D-4035-A9E0-CEA2E8941EAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

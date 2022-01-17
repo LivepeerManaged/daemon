@@ -4,10 +4,21 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>..\lib</OutputPath>
+        <OutputPath>..\lib\Daemon.Shared</OutputPath>
+        <DocumentationFile>..\lib\Daemon.Updater.xml</DocumentationFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="log4net" Version="2.0.14"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Daemon.Basic\Daemon.Basic.csproj"/>
+    </ItemGroup>
 
 </Project>
