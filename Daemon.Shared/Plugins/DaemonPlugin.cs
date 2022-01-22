@@ -1,4 +1,4 @@
-﻿namespace Daemon.Shared;
+﻿namespace Daemon.Shared.Plugins;
 
 /// <summary>
 /// This is the class which is getting called by Core upon loading the Plugin

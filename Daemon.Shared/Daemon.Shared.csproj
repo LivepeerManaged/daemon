@@ -13,4 +13,8 @@
         <DocumentationFile>..\lib\Daemon.Shared.xml</DocumentationFile>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Folder Include="Communication"/>
+    </ItemGroup>
+
 </Project>
