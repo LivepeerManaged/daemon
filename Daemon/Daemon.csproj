@@ -15,18 +15,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Daemon.Basic\Daemon.Basic.csproj"/>
-        <ProjectReference Include="..\Daemon.Updater\Daemon.Updater.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="log4net" Version="2.0.14"/>
+        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <None Remove="log4net.config"/>
-        <AdditionalFiles Include="log4net.config">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="NLog" Version="5.0.0-rc2"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="nlog.config"/>
+        <AdditionalFiles Include="nlog.config">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
     </ItemGroup>
 
