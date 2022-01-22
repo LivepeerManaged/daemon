@@ -15,6 +15,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Daemon.Communication\Daemon.Communication.csproj"/>
         <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj"/>
     </ItemGroup>
 
