@@ -1,8 +1,11 @@
-﻿using Daemon.Basic;
-using Daemon.Plugins;
+﻿using Daemon.Plugins;
+using Daemon.Shared.Basic;
 
 namespace Daemon;
 
+/// <summary>
+/// This is the MainApp which is the central point of the Daemon
+/// </summary>
 public class MainApp : BaseClass {
 	private readonly PluginManager pluginManager;
 

@@ -1,4 +1,4 @@
-﻿using Daemon.Basic;
+﻿using Daemon.Shared.Basic;
 using NLog;
 
 namespace Daemon;

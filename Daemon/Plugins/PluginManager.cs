@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
-using Daemon.Basic;
+using Daemon.Shared.Basic;
 using Daemon.Shared.Plugins;
 
 namespace Daemon.Plugins;

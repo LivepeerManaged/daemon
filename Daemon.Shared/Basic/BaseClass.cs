@@ -1,7 +1,10 @@
 ﻿using NLog;
 
-namespace Daemon.Basic;
+namespace Daemon.Shared.Basic;
 
+/// <summary>
+/// The Baseclass for every Class which needs a Logger
+/// </summary>
 public abstract class BaseClass {
 	private NLog.Logger logger;
 

@@ -17,4 +17,8 @@
         <Folder Include="Communication"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="NLog" Version="5.0.0-rc2"/>
+    </ItemGroup>
+
 </Project>
