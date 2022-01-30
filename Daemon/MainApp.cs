@@ -22,7 +22,7 @@ public class MainApp : BaseClass {
 
 		ContainerBuilder containerBuilder = new Autofac.ContainerBuilder();
 
-		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance();
+		containerBuilder.RegisterType<EventService>().As<IEventService>().As<EventService>().SingleInstance();
 
 		this.Logger.Debug("Successfully initiated dependency injection");
 
