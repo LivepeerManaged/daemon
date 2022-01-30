@@ -14,10 +14,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Communication"/>
-    </ItemGroup>
-
-    <ItemGroup>
+        <PackageReference Include="Autofac" Version="6.3.0"/>
         <PackageReference Include="NLog" Version="5.0.0-rc2"/>
     </ItemGroup>
 
