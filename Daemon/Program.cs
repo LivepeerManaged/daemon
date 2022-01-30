@@ -30,7 +30,7 @@ public class Program : BaseClass, IDisposable {
 	private void startApp() {
 		this.Logger.Info("Load the Application");
 
-		this.Logger.Debug("Starting the Daemon");
+		this.Logger.Debug("Starting Daemon");
 
 		try {
 			MainApp mainApp = new MainApp();
@@ -41,7 +41,7 @@ public class Program : BaseClass, IDisposable {
 
 			mainApp.StopApp();
 		} catch (Exception e) {
-			this.Logger.Fatal("During the execution of the daemon an exception occured", e);
+			this.Logger.Fatal("During the execution of daemon an exception occured", e);
 		}
 	}
 }

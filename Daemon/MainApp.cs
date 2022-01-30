@@ -1,5 +1,8 @@
-﻿using Daemon.Plugins;
+﻿using Autofac;
+using Daemon.Communication;
+using Daemon.Plugins;
 using Daemon.Shared.Basic;
+using Daemon.Shared.Communication;
 
 namespace Daemon;
 
@@ -7,28 +10,30 @@ namespace Daemon;
 /// This is the MainApp which is the central point of the Daemon
 /// </summary>
 public class MainApp : BaseClass {
-	private readonly PluginManager pluginManager;
-
-	/// <summary>
-	/// Constructor of the MainApp
-	/// </summary>
-	public MainApp() {
-		this.pluginManager = new PluginManager();
-	}
+	private PluginManager pluginManager;
 
 	/// <summary>
 	/// This method starts the Daemon.
 	/// </summary>
 	public void StartApp() {
-		this.Logger.Info("The Daemon is starting");
+		this.Logger.Info("Daemon is starting");
+
+		this.Logger.Debug("Try to initiate dependency injection");
+
+		ContainerBuilder containerBuilder = new Autofac.ContainerBuilder();
+
+		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance();
+
+		this.Logger.Debug("Successfully initiated dependency injection");
 
 		this.Logger.Debug("Try to load the plugins");
 
+		this.pluginManager = new PluginManager(containerBuilder);
 		this.pluginManager.LoadPlugins();
 
 		this.Logger.Debug("Successfully loaded all plugins");
 
-		this.Logger.Info("Successfully started the Daemon");
+		this.Logger.Info("Successfully started Daemon");
 	}
 
 	/// <summary>
@@ -36,7 +41,8 @@ public class MainApp : BaseClass {
 	/// </summary>
 	public void StopApp() {
 		this.Logger.Debug("Received a termination signal");
-		this.Logger.Info("Try to stop the Daemon");
+
+		this.Logger.Info("Try to stop Daemon");
 
 		this.Logger.Info("Unload all plugins");
 
@@ -44,6 +50,6 @@ public class MainApp : BaseClass {
 
 		this.Logger.Info("Successfully unloaded all plugins");
 
-		this.Logger.Info("Successfully stopped the Daemon");
+		this.Logger.Info("Successfully stopped Daemon");
 	}
 }
