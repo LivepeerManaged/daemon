@@ -7,24 +7,16 @@ namespace Daemon.Communication;
 public class EventService : IEventService {
 	private readonly Dictionary<Type, List<Action<Event>>> registeredEvents = new Dictionary<Type, List<Action<Event>>>();
 
-	public void OnEvent<T>(Action<Event> onCall) where T : Event {
-		if (!EventService.checkEvent<T>()) {
-			throw new MissingMemberException($"The Attribute EventType is missing on the Class {typeof(T).FullName}");
-		}
-
-		if (!this.registeredEvents.ContainsKey(typeof(Event))) {
-			this.registeredEvents.Add(typeof(Event), new List<Action<Event>>());
-		}
-
-		this.registeredEvents[typeof(Event)].Add(onCall);
+	public void OnEvent<T>(Action<T> onCall) where T : Event {
+		this.RegisterEvent(typeof(T), x => onCall.Invoke((T) x));
 	}
 
 	public void TriggerEvent<T>(Event @event) {
-		if (!EventService.checkEvent<T>()) {
+		if (!EventService.checkEvent(typeof(T))) {
 			throw new MissingMemberException($"The Attribute EventType is missing on the Class {typeof(T).FullName}");
 		}
 
-		EventType typeAttribute = EventService.findEventType<T>();
+		EventType typeAttribute = EventService.findEventType(typeof(T));
 
 		switch (typeAttribute) {
 			case EventType.INTERNAL:
@@ -47,15 +39,27 @@ public class EventService : IEventService {
 		}
 	}
 
-	private static EventType findEventType<T>() {
-		if (!EventService.checkEvent<T>()) {
-			throw new MissingMemberException($"The Attribute EventType is missing on the Class {typeof(T).FullName}");
+	public void RegisterEvent(Type type, Action<Event> action) {
+		if (!EventService.checkEvent(type)) {
+			throw new MissingMemberException($"The Attribute EventType is missing on the Class {type.FullName}");
 		}
 
-		return ((EventTypeAttribute) typeof(T).GetCustomAttribute(typeof(EventTypeAttribute))!).Type;
+		if (!this.registeredEvents.ContainsKey(typeof(Event))) {
+			this.registeredEvents.Add(typeof(Event), new List<Action<Event>>());
+		}
+
+		this.registeredEvents[typeof(Event)].Add(action);
 	}
 
-	private static bool checkEvent<T>() {
-		return typeof(T).CustomAttributes.Any(x => x.AttributeType == typeof(EventTypeAttribute));
+	private static EventType findEventType(Type type) {
+		if (!EventService.checkEvent(type)) {
+			throw new MissingMemberException($"The Attribute EventType is missing on the Class {type.FullName}");
+		}
+
+		return ((EventTypeAttribute) type.GetCustomAttribute(typeof(EventTypeAttribute))!).Type;
+	}
+
+	private static bool checkEvent(Type type) {
+		return type.CustomAttributes.Any(x => x.AttributeType == typeof(EventTypeAttribute));
 	}
 }
