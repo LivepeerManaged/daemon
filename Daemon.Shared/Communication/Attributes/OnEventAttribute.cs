@@ -1,8 +1,8 @@
 ﻿namespace Daemon.Shared.Communication.Attributes;
 
 [System.AttributeUsage(AttributeTargets.Method)]
-public class OnEvent : Attribute {
-	public OnEvent(Type @event) {
+public class OnEventAttribute : Attribute {
+	public OnEventAttribute(Type @event) {
 		this.EventClass = @event;
 	}
 
