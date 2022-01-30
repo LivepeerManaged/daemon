@@ -14,7 +14,7 @@ public abstract class BaseClass {
 	protected Logger Logger {
 		get {
 			if (this.logger == null) {
-				this.logger = NLog.LogManager.GetCurrentClassLogger();
+				this.logger = NLog.LogManager.GetLogger(GetType().FullName);
 			}
 
 			return this.logger;
