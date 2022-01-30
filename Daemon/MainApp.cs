@@ -9,10 +9,16 @@ namespace Daemon;
 public class MainApp : BaseClass {
 	private readonly PluginManager pluginManager;
 
+	/// <summary>
+	/// Constructor of the MainApp
+	/// </summary>
 	public MainApp() {
 		this.pluginManager = new PluginManager();
 	}
 
+	/// <summary>
+	/// This method starts the Daemon.
+	/// </summary>
 	public void StartApp() {
 		this.Logger.Info("The Daemon is starting");
 
@@ -25,6 +31,9 @@ public class MainApp : BaseClass {
 		this.Logger.Info("Successfully started the Daemon");
 	}
 
+	/// <summary>
+	/// This method stops the Daemon.
+	/// </summary>
 	public void StopApp() {
 		this.Logger.Debug("Received a termination signal");
 		this.Logger.Info("Try to stop the Daemon");

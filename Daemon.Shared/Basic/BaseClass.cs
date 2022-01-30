@@ -8,6 +8,9 @@ namespace Daemon.Shared.Basic;
 public abstract class BaseClass {
 	private NLog.Logger logger;
 
+	/// <summary>
+	/// The Logger for the current Class
+	/// </summary>
 	protected Logger Logger {
 		get {
 			if (this.logger == null) {

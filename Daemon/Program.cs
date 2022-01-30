@@ -24,6 +24,9 @@ public class Program : BaseClass, IDisposable {
 		new Program().startApp();
 	}
 
+	/// <summary>
+	/// Loads the Daemon and execute it.
+	/// </summary>
 	private void startApp() {
 		this.Logger.Info("Load the Application");
 
