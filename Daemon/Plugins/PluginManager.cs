@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 using Autofac;
+using Daemon.Communication;
 using Daemon.Shared.Basic;
+using Daemon.Shared.Communication.Attributes;
 using Daemon.Shared.Plugins;
 
 namespace Daemon.Plugins;
@@ -57,7 +59,12 @@ public class PluginManager : BaseClass {
 			try {
 				Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(foundDll.FullName);
 
-				this.ContainerBuilder.RegisterAssemblyTypes(assembly);
+				var types = assembly.GetTypes()
+					.Where(t => t.GetCustomAttribute<EventTypeAttribute>() != null || t.BaseType == typeof(DaemonPlugin) ||
+					            t.GetMethods().Any(x => x.GetCustomAttribute<OnEventAttribute>() != null));
+				foreach (var type in types) {
+					ContainerBuilder.RegisterType(type).AsSelf();
+				}
 
 				loadedAssemblies.Add(assembly);
 
@@ -83,6 +90,40 @@ public class PluginManager : BaseClass {
 				this.Logger.Debug("Found PluginClass {0}", plugin.FullName ?? "Not Found");
 
 				this.loadedPlugins.Add((DaemonPlugin) Activator.CreateInstance(plugin)!);
+
+				this.Logger.Debug($"Try to load the events in {currentAssembly.FullName}");
+
+				foreach (var currentClass in currentAssembly.GetTypes()) {
+					foreach (var currentMethod in currentClass.GetMethods()) {
+						if (currentMethod.CustomAttributes.Any(x => x.AttributeType == typeof(OnEventAttribute))) {
+							this.Logger.Debug($"Try to load Event {currentMethod.Name}");
+
+							OnEventAttribute eventAttribute = ((OnEventAttribute) currentMethod.GetCustomAttribute(typeof(OnEventAttribute))!);
+
+							if (!currentMethod.IsPublic || !currentMethod.IsStatic) {
+								this.Logger.Warn($"Method {currentMethod.Name} is not public or static. Using Experminetal Loading!");
+
+								if (!container.IsRegistered(typeof(EventService))) {
+									this.Logger.Error("The EventService isn't registered");
+									continue;
+								}
+
+								if (!container.IsRegistered(currentClass)) {
+									this.Logger.Error($"The {currentClass.FullName} isnt registered!");
+									continue;
+								}
+
+								container.Resolve<EventService>().RegisterEvent(eventAttribute.EventClass,
+									(@event) => currentMethod.Invoke(container.Resolve(currentMethod.DeclaringType), new[] {@event}));
+							} else {
+								container.Resolve<EventService>().RegisterEvent(eventAttribute.EventClass,
+									(@event) => currentMethod.Invoke(null, new[] {@event}));
+							}
+
+							this.Logger.Debug($"Successfully registered Event {currentMethod.Name}");
+						}
+					}
+				}
 
 				this.Logger.Info("Successfully loaded Plugin {0}", currentAssembly.GetName(false));
 			} catch (Exception e) {
