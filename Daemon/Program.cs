@@ -28,8 +28,6 @@ public class Program : BaseClass, IDisposable {
 	/// Loads the Daemon and execute it.
 	/// </summary>
 	private void startApp() {
-		this.Logger.Info("Load the Application");
-
 		this.Logger.Debug("Starting Daemon");
 
 		try {

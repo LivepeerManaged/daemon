@@ -16,8 +16,6 @@ public class MainApp : BaseClass {
 	/// This method starts the Daemon.
 	/// </summary>
 	public void StartApp() {
-		this.Logger.Info("Daemon is starting");
-
 		this.Logger.Debug("Try to initiate dependency injection");
 
 		ContainerBuilder containerBuilder = new Autofac.ContainerBuilder();
