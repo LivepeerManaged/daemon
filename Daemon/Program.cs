@@ -39,7 +39,7 @@ public class Program : BaseClass, IDisposable {
 
 			mainApp.StopApp();
 		} catch (Exception e) {
-			this.Logger.Fatal("During the execution of daemon an exception occured", e);
+			this.Logger.Fatal("During the execution of daemon an exception occured {0}", e);
 		}
 	}
 }

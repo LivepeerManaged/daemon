@@ -16,22 +16,18 @@ public class MainApp : BaseClass {
 	/// This method starts the Daemon.
 	/// </summary>
 	public void StartApp() {
-		this.Logger.Debug("Try to initiate dependency injection");
+		this.Logger.Debug("Inject Dependencies...");
 
-		ContainerBuilder containerBuilder = new Autofac.ContainerBuilder();
+		ContainerBuilder containerBuilder = new ContainerBuilder();
 
 		containerBuilder.RegisterType<EventService>().As<IEventService>().As<EventService>().SingleInstance();
 
-		this.Logger.Debug("Successfully initiated dependency injection");
-
-		this.Logger.Debug("Try to load the plugins");
+		this.Logger.Debug("Loading Plugins...");
 
 		this.pluginManager = new PluginManager(containerBuilder);
 		this.pluginManager.LoadPlugins();
 
-		this.Logger.Debug("Successfully loaded all plugins");
-
-		this.Logger.Info("Successfully started Daemon");
+		this.Logger.Debug("Plugins Successfully loaded!");
 	}
 
 	/// <summary>
