@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using Daemon.Communication;
 using Daemon.Plugins;
-using Daemon.Shared.Communication;
 using NLog;
+using Testing;
+using TestPlugin;
+using TestPlugin.Services;
 
 namespace Daemon;
 
@@ -21,16 +23,17 @@ public class MainApp {
 	/// <summary>
 	/// This method starts the Daemon.
 	/// </summary>
-	public void StartApp() {
+	public async Task StartApp() {
 		ContainerBuilder containerBuilder = new ContainerBuilder();
 
-		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance();
+		containerBuilder.RegisterType<EventService>().SingleInstance();
+		containerBuilder.RegisterType<ConfigService>();
+		containerBuilder.RegisterType<DaemonService>();
+		containerBuilder.RegisterType<ApiServerService>();
+		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
 
 		Logger.Info("Loading Plugins...");
-
 		pluginManager = new PluginManager(containerBuilder, Logger);
-		pluginManager.LoadPlugins();
-
 		Logger.Info("Plugins Successfully loaded!");
 	}
 

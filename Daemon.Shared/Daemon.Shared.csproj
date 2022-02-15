@@ -16,6 +16,9 @@
     <ItemGroup>
         <PackageReference Include="Autofac" Version="6.3.0" />
         <PackageReference Include="NLog" Version="5.0.0-rc2" />
+        <PackageReference Include="Config.Net" Version="4.19.0" />
+        <PackageReference Include="Config.Net.Json" Version="4.19.0" />
+        <PackageReference Include="SocketIOClient" Version="3.0.5" />
     </ItemGroup>
 
 </Project>
