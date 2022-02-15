@@ -10,8 +10,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Shared", "Daemon.Sha
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Updater", "Daemon.Updater\Daemon.Updater.csproj", "{2E839DE0-699F-4310-B915-F4B30401F28A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.Communication", "Daemon.Communication\Daemon.Communication.csproj", "{F22047C1-6AC4-4876-9ED4-4B4E5CCEF09A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daemon.TestPlugin", "Daemon.TestPlugin\Daemon.TestPlugin.csproj", "{0D56F3E8-0E98-41C1-B697-BF9C5D1FCF04}"
 EndProject
 Global
@@ -32,10 +30,6 @@ Global
 		{2E839DE0-699F-4310-B915-F4B30401F28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E839DE0-699F-4310-B915-F4B30401F28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E839DE0-699F-4310-B915-F4B30401F28A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F22047C1-6AC4-4876-9ED4-4B4E5CCEF09A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F22047C1-6AC4-4876-9ED4-4B4E5CCEF09A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F22047C1-6AC4-4876-9ED4-4B4E5CCEF09A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F22047C1-6AC4-4876-9ED4-4B4E5CCEF09A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D56F3E8-0E98-41C1-B697-BF9C5D1FCF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D56F3E8-0E98-41C1-B697-BF9C5D1FCF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D56F3E8-0E98-41C1-B697-BF9C5D1FCF04}.Release|Any CPU.ActiveCfg = Release|Any CPU

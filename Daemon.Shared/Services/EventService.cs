@@ -2,7 +2,7 @@
 
 namespace Daemon.Communication;
 
-public class EventService : IEventService {
+public class EventService {
 	private readonly Dictionary<Type, List<Action<Event>>> _registeredEvents = new();
 
 	public void OnEvent<T>(Action<T> onCall) where T : Event {

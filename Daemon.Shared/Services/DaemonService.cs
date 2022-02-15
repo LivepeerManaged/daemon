@@ -24,7 +24,7 @@ public class DaemonService {
     }
 
     public IDaemonConfig GetConfig() {
-        return configService.GetConfig<IDaemonConfig>();
+        return configService.GetConfig<IDaemonConfig>("Daemon");
     }
     
     public string GetSecret() {

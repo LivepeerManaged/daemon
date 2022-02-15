@@ -48,7 +48,7 @@ public class PluginManager {
 	/// <summary>
 	/// This methods loads the plugins out of the plugins folder.
 	/// </summary>
-	public void LoadPlugins() {
+	public IContainer LoadPlugins() {
 		if (!_pluginDirectory.Exists) {
 			Logger.Info("Creating Plugins folder...");
 			_pluginDirectory.Create();
@@ -86,6 +86,7 @@ public class PluginManager {
 		}
 
 		Logger.Info($"Loaded and started {loadedPlugins.Count} plugins");
+		return container;
 	}
 
 	/// <summary>
