@@ -1,16 +1,17 @@
 ﻿using Autofac;
 using Daemon.Communication;
 using Daemon.Plugins;
-using Daemon.Shared.Basic;
 using Daemon.Shared.Communication;
+using NLog;
 
 namespace Daemon;
 
 /// <summary>
 /// This is the MainApp which is the central point of the Daemon
 /// </summary>
-public class MainApp : BaseClass {
+public class MainApp {
 	private PluginManager pluginManager;
+	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 
 	/// <summary>
 	/// This method starts the Daemon.

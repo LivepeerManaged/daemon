@@ -1,12 +1,11 @@
-﻿using Daemon.Shared.Basic;
-using NLog;
+﻿using NLog;
 
 namespace Daemon;
 
 /// <summary>
 /// 
 /// </summary>
-public class Program : BaseClass, IDisposable {
+public class Program : IDisposable {
 	/// <summary>
 	/// What should happen on dispose.
 	/// </summary>
@@ -28,7 +27,7 @@ public class Program : BaseClass, IDisposable {
 	/// Loads the Daemon and execute it.
 	/// </summary>
 	private void startApp() {
-		this.Logger.Debug("Starting Daemon");
+		// this.Logger.Debug("Starting Daemon");
 
 		try {
 			MainApp mainApp = new MainApp();
@@ -39,7 +38,7 @@ public class Program : BaseClass, IDisposable {
 
 			mainApp.StopApp();
 		} catch (Exception e) {
-			this.Logger.Fatal("During the execution of daemon an exception occured {0}", e);
+			// this.Logger.Fatal("During the execution of daemon an exception occured {0}", e);
 		}
 	}
 }

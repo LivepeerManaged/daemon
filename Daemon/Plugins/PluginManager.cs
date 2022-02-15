@@ -2,18 +2,18 @@
 using System.Runtime.Loader;
 using System.Security.Cryptography;
 using Autofac;
-using Daemon.Communication;
-using Daemon.Shared.Basic;
 using Daemon.Shared.Communication.Attributes;
 using Daemon.Shared.Plugins;
+using NLog;
 
 namespace Daemon.Plugins;
 
 /// <summary>
 /// This is the plugin manager which handles the whole loading with the plugins
 /// </summary>
-public class PluginManager : BaseClass {
+public class PluginManager {
 	private readonly List<DaemonPlugin> loadedPlugins;
+	private Logger Logger = LogManager.GetLogger(typeof(PluginManager).FullName);
 
 	/// <summary>
 	/// Constructor of the pluginmanager
@@ -30,7 +30,7 @@ public class PluginManager : BaseClass {
 		using FileStream stream = File.OpenRead(file);
 		return md5.ComputeHash(stream);
 	}
-	
+
 	/// <summary>
 	/// This methods loads the plugins out of the plugins folder.
 	/// </summary>
@@ -58,7 +58,7 @@ public class PluginManager : BaseClass {
 
 
 		foreach (FileInfo foundDll in assembliesToLoad.Keys) {
-			this.Logger.Debug("Try to load Assembly {0}", foundDll.Name);
+			this.Logger.Debug("Try to load Assembly \"{0}\"", foundDll.Name);
 
 			try {
 				Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(foundDll.FullName);
@@ -66,22 +66,22 @@ public class PluginManager : BaseClass {
 				var types = assembly.GetTypes()
 					.Where(t => t.GetCustomAttribute<EventTypeAttribute>() != null || t.BaseType == typeof(DaemonPlugin) ||
 					            t.GetMethods().Any(x => x.GetCustomAttribute<OnEventAttribute>() != null));
-				foreach (var type in types) {
+				foreach (Type type in types) {
 					ContainerBuilder.RegisterType(type).AsSelf();
 				}
 
 				loadedAssemblies.Add(assembly);
 
-				this.Logger.Debug("Successfully loaded the Assembly {0}", assembly.GetName());
+				this.Logger.Debug("Successfully loaded the Assembly \"{0}\"", assembly.GetName());
 			} catch (Exception e) {
-				this.Logger.Fatal("During the load of assembly {0} an error occured", e, foundDll.Name);
+				this.Logger.Fatal("During the load of assembly \"{0}\"", foundDll.Name);
+				this.Logger.Error(e);
 			}
 		}
 
-		IContainer container = this.ContainerBuilder.Build();
 
 		foreach (Assembly currentAssembly in loadedAssemblies) {
-			this.Logger.Debug("Try to load Plugin {0}", currentAssembly.FullName);
+			this.Logger.Debug("Try to load Plugin \"{0}\"", currentAssembly.FullName);
 
 			try {
 				Type plugin = currentAssembly.GetTypes().FirstOrDefault(type => type.BaseType == typeof(DaemonPlugin), null);
@@ -90,13 +90,13 @@ public class PluginManager : BaseClass {
 					continue;
 				}
 
-				this.Logger.Debug("Try to load Plugin \"{0}\"", currentAssembly.FullName);
-
-				this.loadedPlugins.Add((DaemonPlugin)Activator.CreateInstance(plugin)!);
-
-				this.Logger.Debug($"Try to load the events in {currentAssembly.FullName}");
-
-				foreach (Type currentClass in currentAssembly.GetTypes()) {
+				DaemonPlugin daemonPlugin = (DaemonPlugin)Activator.CreateInstance(plugin)!;
+				daemonPlugin.RegisterServices(this.ContainerBuilder);
+				this.loadedPlugins.Add(daemonPlugin);
+				
+				/*
+				 * Disabled this kind of Events for now because of DI problems
+				 foreach (Type currentClass in currentAssembly.GetTypes()) {
 					foreach (MethodInfo currentMethod in currentClass.GetMethods()) {
 						if (currentMethod.CustomAttributes.All(x => x.AttributeType != typeof(OnEventAttribute)))
 							continue;
@@ -128,14 +128,17 @@ public class PluginManager : BaseClass {
 						this.Logger.Debug($"Successfully registered Event {currentMethod.Name}");
 					}
 				}
+				 */
 
 				this.Logger.Info("Successfully loaded Plugin {0}", currentAssembly.GetName(false));
 			} catch (Exception e) {
 				this.Logger.Fatal("During the load of plugin {0} an error occured", e, currentAssembly.FullName);
 			}
 		}
+		
+		IContainer container = this.ContainerBuilder.Build();
 
-		foreach (DaemonPlugin daemonPlugin in this.loadedPlugins) {
+		foreach (DaemonPlugin daemonPlugin in loadedPlugins) {
 			this.Logger.Debug("Try to execute the LoadMethod");
 
 			try {

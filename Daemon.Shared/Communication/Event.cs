@@ -1,9 +1,7 @@
-﻿using Daemon.Shared.Basic;
+﻿namespace Daemon.Shared.Communication;
 
-namespace Daemon.Shared.Communication;
-
-public abstract class Event : BaseClass {
+public abstract class Event {
 	protected Event() {
-		this.Logger.Debug("Recieved {0} Event", this.GetType().Name);
+		//this.Logger.Debug("Recieved {0} Event", this.GetType().Name);
 	}
 }
