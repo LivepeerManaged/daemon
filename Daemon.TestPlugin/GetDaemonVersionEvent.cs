@@ -3,10 +3,10 @@ using Daemon.Shared.Communication.Attributes;
 
 namespace TestPlugin; 
 
-[EventType(EventType.INTERNAL)]
+[EventName("GetDaemonVersion")]
 public class GetDaemonVersionEvent : Event {
-	public Version Version { get; }
-	public GetDaemonVersionEvent(Version version) {
+	public string Version { get; }
+	public GetDaemonVersionEvent(string version) {
 		this.Version = version;
 	}
 }

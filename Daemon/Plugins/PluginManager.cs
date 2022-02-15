@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-using System.Runtime.Loader;
+﻿using System.Runtime.Loader;
 using System.Security.Cryptography;
 using Autofac;
-using Daemon.Shared.Communication.Attributes;
 using Daemon.Shared.Plugins;
 using NLog;
 
@@ -13,17 +11,16 @@ namespace Daemon.Plugins;
 /// </summary>
 public class PluginManager {
 	private readonly List<DaemonPlugin> loadedPlugins;
-	private Logger Logger = LogManager.GetLogger(typeof(PluginManager).FullName);
+	public ContainerBuilder ContainerBuilder { get; set; }
+	public Logger Logger { get; }
+	private readonly DirectoryInfo _pluginDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "plugins"));
 
-	/// <summary>
-	/// Constructor of the pluginmanager
-	/// </summary>
-	public PluginManager(ContainerBuilder containerBuilder) {
+	public PluginManager(ContainerBuilder containerBuilder, Logger logger) {
 		this.loadedPlugins = new List<DaemonPlugin>();
 		this.ContainerBuilder = containerBuilder;
+		Logger = logger;
 	}
 
-	public ContainerBuilder ContainerBuilder { get; set; }
 
 	private byte[] GetHash(string file) {
 		using MD5 md5 = MD5.Create();
@@ -31,133 +28,71 @@ public class PluginManager {
 		return md5.ComputeHash(stream);
 	}
 
+	private FileInfo[] GetPluginsInFolder() {
+		Dictionary<FileInfo, byte[]> foundPlugins = new Dictionary<FileInfo, byte[]>();
+
+		foreach (FileInfo assemblyFile in _pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
+			byte[] hash = GetHash(assemblyFile.FullName);
+
+			if (foundPlugins.ContainsValue(hash))
+				continue;
+
+			Logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
+
+			foundPlugins.Add(assemblyFile, hash);
+		}
+
+		return foundPlugins.Keys.ToArray();
+	}
+
 	/// <summary>
 	/// This methods loads the plugins out of the plugins folder.
 	/// </summary>
 	public void LoadPlugins() {
-		Dictionary<FileInfo, byte[]> assembliesToLoad = new Dictionary<FileInfo, byte[]>();
-		//List<FileInfo> assembliesToLoad = new List<FileInfo>();
-		List<Assembly> loadedAssemblies = new List<Assembly>();
-		DirectoryInfo pluginDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "plugins"));
-
-		if (!pluginDirectory.Exists) {
-			this.Logger.Info("Creating Plugins folder...");
-			pluginDirectory.Create();
+		if (!_pluginDirectory.Exists) {
+			Logger.Info("Creating Plugins folder...");
+			_pluginDirectory.Create();
 		}
 
-		foreach (FileInfo assemblyFile in pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
-			byte[] hash = GetHash(assemblyFile.FullName);
+		foreach (FileInfo foundDll in GetPluginsInFolder()) {
+			Logger.Debug($"Try to load Plugin \"{foundDll.Name}\"...");
 
-			if (assembliesToLoad.ContainsValue(hash))
-				continue;
+			IEnumerable<Type> types = AssemblyLoadContext.Default.LoadFromAssemblyPath(foundDll.FullName).GetTypes().Where(t => t.BaseType == typeof(DaemonPlugin));
 
-			this.Logger.Debug("Found Plugin \"{0}\" [{1}]", assemblyFile.Name, BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant());
-
-			assembliesToLoad.Add(assemblyFile, hash);
-		}
-
-
-		foreach (FileInfo foundDll in assembliesToLoad.Keys) {
-			this.Logger.Debug("Try to load Assembly \"{0}\"", foundDll.Name);
-
-			try {
-				Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(foundDll.FullName);
-
-				var types = assembly.GetTypes()
-					.Where(t => t.GetCustomAttribute<EventTypeAttribute>() != null || t.BaseType == typeof(DaemonPlugin) ||
-					            t.GetMethods().Any(x => x.GetCustomAttribute<OnEventAttribute>() != null));
-				foreach (Type type in types) {
-					ContainerBuilder.RegisterType(type).AsSelf();
+			foreach (Type pluginType in types) {
+				DaemonPlugin daemonPlugin = (DaemonPlugin) Activator.CreateInstance(pluginType)!;
+				try {
+					daemonPlugin.RegisterServices(ContainerBuilder);
+					loadedPlugins.Add(daemonPlugin);
+					Logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
+				} catch (Exception e) {
+					Logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
+					Logger.Fatal(e);
 				}
-
-				loadedAssemblies.Add(assembly);
-
-				this.Logger.Debug("Successfully loaded the Assembly \"{0}\"", assembly.GetName());
-			} catch (Exception e) {
-				this.Logger.Fatal("During the load of assembly \"{0}\"", foundDll.Name);
-				this.Logger.Error(e);
-			}
-		}
-
-
-		foreach (Assembly currentAssembly in loadedAssemblies) {
-			this.Logger.Debug("Try to load Plugin \"{0}\"", currentAssembly.FullName);
-
-			try {
-				Type plugin = currentAssembly.GetTypes().FirstOrDefault(type => type.BaseType == typeof(DaemonPlugin), null);
-
-				if (plugin == null) {
-					continue;
-				}
-
-				DaemonPlugin daemonPlugin = (DaemonPlugin)Activator.CreateInstance(plugin)!;
-				daemonPlugin.RegisterServices(this.ContainerBuilder);
-				this.loadedPlugins.Add(daemonPlugin);
-				
-				/*
-				 * Disabled this kind of Events for now because of DI problems
-				 foreach (Type currentClass in currentAssembly.GetTypes()) {
-					foreach (MethodInfo currentMethod in currentClass.GetMethods()) {
-						if (currentMethod.CustomAttributes.All(x => x.AttributeType != typeof(OnEventAttribute)))
-							continue;
-
-						this.Logger.Debug($"Try to load Event {currentMethod.Name}");
-
-						OnEventAttribute eventAttribute = ((OnEventAttribute)currentMethod.GetCustomAttribute(typeof(OnEventAttribute))!);
-
-						if (!currentMethod.IsPublic || !currentMethod.IsStatic) {
-							this.Logger.Warn($"Method {currentMethod.Name} is not public or static. Using Experminetal Loading!");
-
-							if (!container.IsRegistered(typeof(EventService))) {
-								this.Logger.Error("The EventService isn't registered");
-								continue;
-							}
-
-							if (!container.IsRegistered(currentClass)) {
-								this.Logger.Error($"The {currentClass.FullName} isnt registered!");
-								continue;
-							}
-
-							container.Resolve<EventService>().RegisterEvent(eventAttribute.EventClass,
-								(@event) => currentMethod.Invoke(container.Resolve(currentMethod.DeclaringType), new[] { @event }));
-						} else {
-							container.Resolve<EventService>().RegisterEvent(eventAttribute.EventClass,
-								(@event) => currentMethod.Invoke(null, new[] { @event }));
-						}
-
-						this.Logger.Debug($"Successfully registered Event {currentMethod.Name}");
-					}
-				}
-				 */
-
-				this.Logger.Info("Successfully loaded Plugin {0}", currentAssembly.GetName(false));
-			} catch (Exception e) {
-				this.Logger.Fatal("During the load of plugin {0} an error occured", e, currentAssembly.FullName);
 			}
 		}
 		
-		IContainer container = this.ContainerBuilder.Build();
+		IContainer container = ContainerBuilder.Build();
 
 		foreach (DaemonPlugin daemonPlugin in loadedPlugins) {
-			this.Logger.Debug("Try to execute the LoadMethod");
-
 			try {
 				daemonPlugin.OnPluginLoad(container);
 
-				this.Logger.Info("Successfully started Plugin {0}", daemonPlugin.GetType().FullName ?? "Not Found");
+				Logger.Info($"Successfully started Plugin \"{daemonPlugin.GetType().FullName}\"!");
 			} catch (Exception e) {
-				this.Logger.Fatal("During the start of plugin {0}, an error occured", e, daemonPlugin.GetType().FullName ?? "Not Found");
+				Logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
+				Logger.Fatal(e);
 			}
 		}
 
-		this.Logger.Info("Loaded and started {0} plugins", this.loadedPlugins.Count);
+		Logger.Info($"Loaded and started {loadedPlugins.Count} plugins");
 	}
 
 	/// <summary>
 	/// This methods
 	/// </summary>
 	public void UnloadPlugins() {
-		foreach (var currentPlugin in this.loadedPlugins) {
+		foreach (DaemonPlugin currentPlugin in loadedPlugins) {
 			currentPlugin.OnPluginDisable();
 		}
 	}

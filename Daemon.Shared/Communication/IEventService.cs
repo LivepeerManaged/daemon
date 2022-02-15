@@ -3,5 +3,5 @@
 public interface IEventService {
 	void OnEvent<T>(Action<T> onCall) where T : Event;
 
-	void TriggerEvent<T>(Event @event);
+	void TriggerEvent(Event e);
 }

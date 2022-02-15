@@ -20,25 +20,12 @@ public class Program : IDisposable {
 	/// <param name="args"></param>
 	/// <exception cref="InvalidOperationException"></exception>
 	public static void Main(string[] args) {
-		new Program().startApp();
-	}
+		CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
 
-	/// <summary>
-	/// Loads the Daemon and execute it.
-	/// </summary>
-	private void startApp() {
-		// this.Logger.Debug("Starting Daemon");
+		MainApp mainApp = new MainApp(cancellationTokenSource);
 
-		try {
-			MainApp mainApp = new MainApp();
+		mainApp.StartApp();
 
-			mainApp.StartApp();
-
-			Console.ReadKey();
-
-			mainApp.StopApp();
-		} catch (Exception e) {
-			// this.Logger.Fatal("During the execution of daemon an exception occured {0}", e);
-		}
+		cancellationTokenSource.Token.WaitHandle.WaitOne();
 	}
 }

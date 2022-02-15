@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Daemon.Shared.Communication;
 using Daemon.Shared.Plugins;
 using Testing;
 using TestPlugin.Services;
@@ -10,15 +11,21 @@ public class Plugin : DaemonPlugin {
 		containerBuilder.RegisterType<ConfigService>();
 		containerBuilder.RegisterType<DaemonService>();
 		containerBuilder.RegisterType<ApiServerService>();
-		containerBuilder.RegisterType<DaemonWebsocketService>().SingleInstance();
-
+		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
+		containerBuilder.RegisterType<WebsocketEventService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
 	}
 
 	public override void OnPluginLoad(IContainer container) {
-		DaemonWebsocketService websocketService = container.Resolve<DaemonWebsocketService>();
-		websocketService.connect();
+		try {
+			WebsocketService websocketService = container.Resolve<WebsocketService>();
+
+			websocketService.connect();
+		} catch (Exception e) {
+			Console.WriteLine(e);
+			throw;
+		}
 		//this.Logger.Info(.GetConfig().ApiServer);
-		
+
 		/*
 		 * 	var exitEvent = new ManualResetEvent(false);
 			var url = new Uri("wss://xxx");
@@ -39,6 +46,5 @@ public class Plugin : DaemonPlugin {
 	}
 
 	public override void OnPluginDisable() {
-		
 	}
 }
