@@ -1,6 +1,6 @@
-﻿namespace Testing.Exceptions; 
+﻿namespace Testing.Exceptions;
 
-public class InvalidApiServerException: Exception {
-    public InvalidApiServerException(string server): base($"Invalid ApiServer in Config! \"{server}\"") {
-    }
+public class InvalidApiServerException : Exception {
+	public InvalidApiServerException(string server) : base($"Invalid ApiServer in Config! \"{server}\"") {
+	}
 }

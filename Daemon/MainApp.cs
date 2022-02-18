@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Daemon.Communication;
-using Daemon.Plugins;
 using NLog;
 using Testing;
 using TestPlugin;
@@ -23,7 +22,7 @@ public class MainApp {
 	/// <summary>
 	/// This method starts the Daemon.
 	/// </summary>
-	public async Task StartApp() {
+	public void StartApp() {
 		ContainerBuilder containerBuilder = new ContainerBuilder();
 
 		containerBuilder.RegisterType<EventService>().SingleInstance();
@@ -32,9 +31,7 @@ public class MainApp {
 		containerBuilder.RegisterType<ApiServerService>();
 		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
 
-		Logger.Info("Loading Plugins...");
 		pluginManager = new PluginManager(containerBuilder, Logger);
-		Logger.Info("Plugins Successfully loaded!");
 	}
 
 	/// <summary>
@@ -52,7 +49,7 @@ public class MainApp {
 		Logger.Info("Successfully unloaded all plugins");
 
 		Logger.Info("Successfully stopped Daemon");
-		
+
 		CancellationToken.Cancel();
 	}
 }

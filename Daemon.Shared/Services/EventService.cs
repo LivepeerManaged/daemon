@@ -9,7 +9,7 @@ public class EventService {
 		if (!_registeredEvents.ContainsKey(typeof(T)))
 			_registeredEvents.Add(typeof(T), new List<Action<Event>>());
 
-		_registeredEvents[typeof(T)].Add(x => onCall.Invoke((T)x));
+		_registeredEvents[typeof(T)].Add(x => onCall.Invoke((T) x));
 	}
 
 	public void TriggerEvent(Event e) {

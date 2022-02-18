@@ -19,12 +19,10 @@ public class Program : IDisposable {
 	/// </summary>
 	/// <param name="args"></param>
 	/// <exception cref="InvalidOperationException"></exception>
-	public static void Main(string[] args) {
+	public static async Task Main(string[] args) {
 		CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
 
-		MainApp mainApp = new MainApp(cancellationTokenSource);
-
-		mainApp.StartApp();
+		new MainApp(cancellationTokenSource).StartApp();
 
 		cancellationTokenSource.Token.WaitHandle.WaitOne();
 	}

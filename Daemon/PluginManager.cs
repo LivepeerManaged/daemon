@@ -4,7 +4,7 @@ using Autofac;
 using Daemon.Shared.Plugins;
 using NLog;
 
-namespace Daemon.Plugins;
+namespace Daemon;
 
 /// <summary>
 /// This is the plugin manager which handles the whole loading with the plugins
@@ -71,7 +71,7 @@ public class PluginManager {
 				}
 			}
 		}
-		
+
 		IContainer container = ContainerBuilder.Build();
 
 		foreach (DaemonPlugin daemonPlugin in loadedPlugins) {

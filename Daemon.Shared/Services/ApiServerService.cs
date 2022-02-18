@@ -6,35 +6,9 @@ using TestPlugin;
 namespace Testing;
 
 public class ApiServerService {
-	private readonly DaemonService daemonService;
-	private HttpClient httpClient;
+	private DaemonService daemonService { get; set; }
+	private HttpClient httpClient = new HttpClient();
 
-	public ApiServerService(DaemonService daemonService) {
-		this.daemonService = daemonService;
-		this.httpClient = new HttpClient();
-	}
-
-/*
- * 
-    public async Task<string> ActivateDaemon() {
-        RSA rsa = daemonService.GetRSAKey();
-        return await PostFormRequest<string>(new Uri(daemonService.GetApiServer(), "/daemon/activateDaemon"), new Dictionary<string, string> {
-            { "publicKey", Convert.ToBase64String(rsa.ExportRSAPublicKey()) },
-            { "daemonSecret", daemonService.GetSecret() },
-            { "signature", daemonService.SignMessage(rsa, daemonService.GetSecret()) },
-        });
-    }
-
- */
-	/**
-     * This one is for later. We will allow the logged in user to create a damon via the api
-     * public async Task<IDaemon> CreateDaemon() {
-        RSA rsa = daemonService.GetRSAKey();
-        return await PostFormRequest<IDaemon>(new Uri(daemonService.GetApiServer(), "/daemon/createDaemon"), new Dictionary<string, string> {
-            { "publicKey", Convert.ToBase64String(rsa.ExportRSAPublicKey()) },
-        });
-    }
-     */
 	public async Task<string> DaemonLogin(string id, string secret) {
 		return await PostFormRequestAsString(new Uri(daemonService.GetApiServer(), "/daemon/login"), new Dictionary<string, string> {
 			{ "id", id },

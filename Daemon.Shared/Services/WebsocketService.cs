@@ -11,10 +11,10 @@ public class WebsocketService {
 	public DaemonService DaemonService { get; set; }
 	public ApiServerService ApiServerService { get; set; }
 	private SocketIO? client;
-	
+
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
 	private readonly List<Action<string, Event>> _anyEventList = new();
-	
+
 	public async Task connect(EventHandler onConnected) {
 		// TODO remove /daemon and move to daemonservice
 		client = new SocketIO(new Uri(DaemonService.GetApiServer(), "/daemon"), new SocketIOOptions() {
@@ -26,10 +26,10 @@ public class WebsocketService {
 		client.OnAny((name, response) => TriggerEvent(name, response.GetValue()));
 
 		client.OnConnected += onConnected;
-		
+
 		await client.ConnectAsync();
 	}
-	
+
 	public void TriggerEvent(string eventName, JsonElement json) {
 		Type? eventTypeByName = GetEventTypeByName(eventName);
 
@@ -37,13 +37,13 @@ public class WebsocketService {
 			throw new Exception($"Event class not found for \"{eventName}\"");
 
 		Event? eventFromType = (Event) json.Deserialize(eventTypeByName);
-		
+
 		if (eventFromType == null)
 			throw new Exception("whut?");
 
 		foreach (Action<Event> registeredAction in _registeredEvents.Where(registeredAction => registeredAction.Key == eventName).SelectMany(registeredEvent => registeredEvent.Value))
 			registeredAction.Invoke(eventFromType);
-	
+
 		foreach (Action<string, Event> action in _anyEventList)
 			action.Invoke(eventName, eventFromType);
 	}
@@ -61,7 +61,7 @@ public class WebsocketService {
 	public void OnEvent(Action<string, object> onCall) {
 		_anyEventList.Add(onCall);
 	}
-	
+
 	public void TriggerEvent(Event e) {
 		client?.EmitAsync(GetEventName(e), e);
 	}
@@ -83,7 +83,7 @@ public class WebsocketService {
 		attribute = e.GetType().GetCustomAttribute<EventNameAttribute>();
 		return attribute != null;
 	}
-	
+
 	private Type[] GetAllEventTypes() {
 		return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(t => t.GetCustomAttribute<EventNameAttribute>() != null)).ToArray();
 	}
