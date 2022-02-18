@@ -1,10 +1,10 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Castle.Core.Internal;
-using Testing;
-using Testing.Exceptions;
+using Daemon.Shared.Entities;
+using Daemon.Shared.Exceptions;
 
-namespace TestPlugin;
+namespace Daemon.Shared.Services;
 
 public class DaemonService {
 	private ConfigService configService { get; set; }

@@ -1,9 +1,7 @@
 ﻿using Autofac;
-using Daemon.Communication;
+using Daemon.Shared.Services;
 using NLog;
-using Testing;
 using TestPlugin;
-using TestPlugin.Services;
 
 namespace Daemon;
 

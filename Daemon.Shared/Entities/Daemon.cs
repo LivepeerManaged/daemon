@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace TestPlugin;
+﻿namespace Daemon.Shared.Entities;
 
 public class Daemon {
 	public string Id { get; set; }

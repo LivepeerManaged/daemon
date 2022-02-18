@@ -1,4 +1,4 @@
-﻿namespace TestPlugin;
+﻿namespace Daemon.Shared.Entities;
 
 public class ApiServerError : Exception {
 	public string Id { get; set; }

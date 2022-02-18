@@ -1,6 +1,6 @@
 ﻿using Daemon.Shared.Communication;
 
-namespace Daemon.Communication;
+namespace Daemon.Shared.Services;
 
 public class EventService {
 	private readonly Dictionary<Type, List<Action<Event>>> _registeredEvents = new();

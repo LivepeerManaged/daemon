@@ -3,9 +3,8 @@ using System.Text.Json;
 using Daemon.Shared.Communication;
 using Daemon.Shared.Communication.Attributes;
 using SocketIOClient;
-using Testing;
 
-namespace TestPlugin.Services;
+namespace Daemon.Shared.Services;
 
 public class WebsocketService {
 	public DaemonService DaemonService { get; set; }

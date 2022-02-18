@@ -1,9 +1,7 @@
 ﻿using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Text.Json;
-using TestPlugin;
+using Daemon.Shared.Entities;
 
-namespace Testing;
+namespace Daemon.Shared.Services;
 
 public class ApiServerService {
 	private DaemonService daemonService { get; set; }

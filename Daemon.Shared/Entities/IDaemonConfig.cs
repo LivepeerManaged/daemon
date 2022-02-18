@@ -1,4 +1,4 @@
-﻿namespace TestPlugin;
+﻿namespace Daemon.Shared.Entities;
 
 public interface IDaemonConfig {
 	string DaemonId { get; set; }

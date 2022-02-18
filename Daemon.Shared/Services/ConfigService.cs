@@ -1,7 +1,6 @@
-﻿using Autofac.Core.Activators;
-using Config.Net;
+﻿using Config.Net;
 
-namespace TestPlugin;
+namespace Daemon.Shared.Services;
 
 public class ConfigService {
 	public T GetConfig<T>(string? configName = null) where T : class {
