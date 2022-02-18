@@ -10,17 +10,14 @@ namespace Daemon;
 /// This is the plugin manager which handles the whole loading with the plugins
 /// </summary>
 public class PluginManager {
-	private readonly List<DaemonPlugin> loadedPlugins;
-	public ContainerBuilder ContainerBuilder { get; set; }
-	public Logger Logger { get; }
-	private readonly DirectoryInfo _pluginDirectory = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "plugins"));
+	private readonly List<DaemonPlugin> _loadedPlugins = new();
+	private readonly ContainerBuilder _containerBuilder;
+	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginManager).FullName);
+	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
 
-	public PluginManager(ContainerBuilder containerBuilder, Logger logger) {
-		this.loadedPlugins = new List<DaemonPlugin>();
-		this.ContainerBuilder = containerBuilder;
-		Logger = logger;
+	public PluginManager(ContainerBuilder containerBuilder) {
+		_containerBuilder = containerBuilder;
 	}
-
 
 	private byte[] GetHash(string file) {
 		using MD5 md5 = MD5.Create();
@@ -29,15 +26,16 @@ public class PluginManager {
 	}
 
 	private FileInfo[] GetPluginsInFolder() {
-		Dictionary<FileInfo, byte[]> foundPlugins = new Dictionary<FileInfo, byte[]>();
+		Dictionary<FileInfo, byte[]> foundPlugins = new();
 
 		foreach (FileInfo assemblyFile in _pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
 			byte[] hash = GetHash(assemblyFile.FullName);
 
-			if (foundPlugins.ContainsValue(hash))
+			if (foundPlugins.ContainsValue(hash)) {
 				continue;
+			}
 
-			Logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
+			_logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
 
 			foundPlugins.Add(assemblyFile, hash);
 		}
@@ -50,42 +48,42 @@ public class PluginManager {
 	/// </summary>
 	public IContainer LoadPlugins() {
 		if (!_pluginDirectory.Exists) {
-			Logger.Info("Creating Plugins folder...");
+			_logger.Info("Creating Plugins folder...");
 			_pluginDirectory.Create();
 		}
 
 		foreach (FileInfo foundDll in GetPluginsInFolder()) {
-			Logger.Debug($"Try to load Plugin \"{foundDll.Name}\"...");
+			_logger.Debug($"Try to load Plugin \"{foundDll.Name}\"...");
 
 			IEnumerable<Type> types = AssemblyLoadContext.Default.LoadFromAssemblyPath(foundDll.FullName).GetTypes().Where(t => t.BaseType == typeof(DaemonPlugin));
 
 			foreach (Type pluginType in types) {
 				DaemonPlugin daemonPlugin = (DaemonPlugin) Activator.CreateInstance(pluginType)!;
 				try {
-					daemonPlugin.RegisterServices(ContainerBuilder);
-					loadedPlugins.Add(daemonPlugin);
-					Logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
+					daemonPlugin.RegisterServices(_containerBuilder);
+					_loadedPlugins.Add(daemonPlugin);
+					_logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
 				} catch (Exception e) {
-					Logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
-					Logger.Fatal(e);
+					_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
+					_logger.Fatal(e);
 				}
 			}
 		}
 
-		IContainer container = ContainerBuilder.Build();
+		IContainer container = _containerBuilder.Build();
 
-		foreach (DaemonPlugin daemonPlugin in loadedPlugins) {
+		foreach (DaemonPlugin daemonPlugin in _loadedPlugins) {
 			try {
 				daemonPlugin.OnPluginLoad(container);
 
-				Logger.Info($"Successfully started Plugin \"{daemonPlugin.GetType().FullName}\"!");
+				_logger.Info($"Successfully started Plugin \"{daemonPlugin.GetType().FullName}\"!");
 			} catch (Exception e) {
-				Logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
-				Logger.Fatal(e);
+				_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
+				_logger.Fatal(e);
 			}
 		}
 
-		Logger.Info($"Loaded and started {loadedPlugins.Count} plugins");
+		_logger.Info($"Loaded and started {_loadedPlugins.Count} plugins");
 		return container;
 	}
 
@@ -93,7 +91,7 @@ public class PluginManager {
 	/// This methods
 	/// </summary>
 	public void UnloadPlugins() {
-		foreach (DaemonPlugin currentPlugin in loadedPlugins) {
+		foreach (DaemonPlugin currentPlugin in _loadedPlugins) {
 			currentPlugin.OnPluginDisable();
 		}
 	}

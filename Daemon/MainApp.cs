@@ -9,7 +9,7 @@ namespace Daemon;
 /// This is the MainApp which is the central point of the Daemon
 /// </summary>
 public class MainApp {
-	public CancellationTokenSource CancellationToken { get; }
+	private CancellationTokenSource CancellationToken { get; }
 	private PluginManager pluginManager;
 	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 
@@ -21,7 +21,7 @@ public class MainApp {
 	/// This method starts the Daemon.
 	/// </summary>
 	public void StartApp() {
-		ContainerBuilder containerBuilder = new ContainerBuilder();
+		ContainerBuilder containerBuilder = new();
 
 		containerBuilder.RegisterType<EventService>().SingleInstance();
 		containerBuilder.RegisterType<ConfigService>();
@@ -29,7 +29,8 @@ public class MainApp {
 		containerBuilder.RegisterType<ApiServerService>();
 		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
 
-		pluginManager = new PluginManager(containerBuilder, Logger);
+		pluginManager = new PluginManager(containerBuilder);
+		pluginManager.LoadPlugins();
 	}
 
 	/// <summary>

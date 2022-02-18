@@ -7,52 +7,56 @@ using SocketIOClient;
 namespace Daemon.Shared.Services;
 
 public class WebsocketService {
-	public DaemonService DaemonService { get; set; }
-	public ApiServerService ApiServerService { get; set; }
-	private SocketIO? client;
-
+	private DaemonService DaemonService { get; set; }
+	private ApiServerService ApiServerService { get; set; }
+	private SocketIO? _client;
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
 	private readonly List<Action<string, Event>> _anyEventList = new();
 
 	public async Task connect(EventHandler onConnected) {
 		// TODO remove /daemon and move to daemonservice
-		client = new SocketIO(new Uri(DaemonService.GetApiServer(), "/daemon"), new SocketIOOptions() {
+		_client = new SocketIO(new Uri(DaemonService.GetApiServer(), "/daemon"), new SocketIOOptions() {
 			Query = new KeyValuePair<string, string>[] {
 				new("token", await ApiServerService.DaemonLogin(DaemonService.getId(), DaemonService.GetSecret()))
 			}
 		});
 
-		client.OnAny((name, response) => TriggerEvent(name, response.GetValue()));
+		_client.OnAny((name, response) => TriggerEvent(name, response.GetValue()));
 
-		client.OnConnected += onConnected;
+		_client.OnConnected += onConnected;
 
-		await client.ConnectAsync();
+		await _client.ConnectAsync();
 	}
 
 	public void TriggerEvent(string eventName, JsonElement json) {
 		Type? eventTypeByName = GetEventTypeByName(eventName);
 
-		if (eventTypeByName == null)
+		if (eventTypeByName == null) {
 			throw new Exception($"Event class not found for \"{eventName}\"");
+		}
 
 		Event? eventFromType = (Event) json.Deserialize(eventTypeByName);
 
-		if (eventFromType == null)
+		if (eventFromType == null) {
 			throw new Exception("whut?");
+		}
 
-		foreach (Action<Event> registeredAction in _registeredEvents.Where(registeredAction => registeredAction.Key == eventName).SelectMany(registeredEvent => registeredEvent.Value))
+		foreach (Action<Event> registeredAction in _registeredEvents.Where(registeredAction => registeredAction.Key == eventName).SelectMany(registeredEvent => registeredEvent.Value)) {
 			registeredAction.Invoke(eventFromType);
+		}
 
-		foreach (Action<string, Event> action in _anyEventList)
+		foreach (Action<string, Event> action in _anyEventList) {
 			action.Invoke(eventName, eventFromType);
+		}
 	}
 
 	// TODO add OffEvent
 	public void OnEvent<T>(Action<T> onCall) where T : Event {
 		string eventName = GetEventName(typeof(T));
 
-		if (!_registeredEvents.ContainsKey(eventName))
+		if (!_registeredEvents.ContainsKey(eventName)) {
 			_registeredEvents.Add(eventName, new List<Action<Event>>());
+		}
 
 		_registeredEvents[eventName].Add(e => onCall.Invoke((T) e));
 	}
@@ -62,7 +66,7 @@ public class WebsocketService {
 	}
 
 	public void TriggerEvent(Event e) {
-		client?.EmitAsync(GetEventName(e), e);
+		_client?.EmitAsync(GetEventName(e), e);
 	}
 
 	private static string GetEventName(Type e) {

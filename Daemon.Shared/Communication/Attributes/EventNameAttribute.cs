@@ -2,7 +2,7 @@
 
 namespace Daemon.Shared.Communication.Attributes;
 
-[System.AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class)]
 public class EventNameAttribute : Attribute {
 	public string? EventName { get; }
 

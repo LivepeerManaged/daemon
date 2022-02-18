@@ -1,6 +1,6 @@
 ﻿using NLog;
 
-namespace Daemon.Updater; 
+namespace Daemon.Updater;
 
 public class Program {
 	private readonly Logger logger;
