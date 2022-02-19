@@ -1,4 +1,7 @@
-﻿using Autofac;
+﻿using System.Dynamic;
+using System.Reflection;
+using Autofac;
+using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 using NLog;
 using TestPlugin;
@@ -22,15 +25,30 @@ public class MainApp {
 	/// </summary>
 	public void StartApp() {
 		ContainerBuilder containerBuilder = new();
-
-		containerBuilder.RegisterType<EventService>().SingleInstance();
-		containerBuilder.RegisterType<ConfigService>();
-		containerBuilder.RegisterType<DaemonService>();
-		containerBuilder.RegisterType<ApiServerService>();
-		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
-
+		registerServices(containerBuilder);
 		pluginManager = new PluginManager(containerBuilder);
-		pluginManager.LoadPlugins();
+		IContainer container = pluginManager.LoadPlugins();
+
+		CommandService commandService = container.Resolve<CommandService>();
+
+		commandService.TriggerCommand("Test", new {
+			FirstParameter = "TESTLOL",
+			SecondParameter = "SECOND WOOO"
+		});
+		foreach (CommandParameterAttribute commandParameterAttribute in commandService.GetCommandParameters<TestCommand>()) {
+			Console.WriteLine($"{commandParameterAttribute.Name}: {commandParameterAttribute.Description}");
+		}
+
+	}
+
+	private void registerServices(ContainerBuilder containerBuilder) {
+		containerBuilder.RegisterType<EventService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
+		containerBuilder.RegisterType<WebsocketService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).SingleInstance();
+		containerBuilder.RegisterType<ConfigService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+		containerBuilder.RegisterType<DaemonService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+		containerBuilder.RegisterType<ApiServerService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+		containerBuilder.RegisterType<ReflectionsService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
+		containerBuilder.RegisterType<CommandService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies);
 	}
 
 	/// <summary>

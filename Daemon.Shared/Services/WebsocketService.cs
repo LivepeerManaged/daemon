@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
-using Daemon.Shared.Communication;
-using Daemon.Shared.Communication.Attributes;
+using Daemon.Shared.Entities;
+using Daemon.Shared.Events;
 using SocketIOClient;
 
 namespace Daemon.Shared.Services;
@@ -9,13 +9,13 @@ namespace Daemon.Shared.Services;
 public class WebsocketService {
 	private DaemonService DaemonService { get; set; }
 	private ApiServerService ApiServerService { get; set; }
+	private ReflectionsService ReflectionsService { get; set; }
 	private SocketIO? _client;
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
 	private readonly List<Action<string, Event>> _anyEventList = new();
 
 	public async Task connect(EventHandler onConnected) {
-		// TODO remove /daemon and move to daemonservice
-		_client = new SocketIO(new Uri(DaemonService.GetApiServer(), "/daemon"), new SocketIOOptions() {
+		_client = new SocketIO(DaemonService.GetWebsocketServer(), new SocketIOOptions() {
 			Query = new KeyValuePair<string, string>[] {
 				new("token", await ApiServerService.DaemonLogin(DaemonService.getId(), DaemonService.GetSecret()))
 			}
@@ -88,7 +88,7 @@ public class WebsocketService {
 	}
 
 	private Type[] GetAllEventTypes() {
-		return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes().Where(t => t.GetCustomAttribute<EventNameAttribute>() != null)).ToArray();
+		return ReflectionsService.GetAllAttributedTypes<EventNameAttribute>();
 	}
 
 	private Type? GetEventTypeByName(string name) {

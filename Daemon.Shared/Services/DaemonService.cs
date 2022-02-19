@@ -21,6 +21,10 @@ public class DaemonService {
 		return uri;
 	}
 
+	public Uri GetWebsocketServer() {
+		return new Uri(GetApiServer(), "daemon");
+	}
+	
 	public IDaemonConfig GetConfig() {
 		return ConfigService.GetConfig<IDaemonConfig>("Daemon");
 	}

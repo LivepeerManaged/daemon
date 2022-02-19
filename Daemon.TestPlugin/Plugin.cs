@@ -1,5 +1,5 @@
 ﻿using Autofac;
-using Daemon.Shared.Plugins;
+using Daemon.Shared.Entities;
 
 namespace TestPlugin;
 

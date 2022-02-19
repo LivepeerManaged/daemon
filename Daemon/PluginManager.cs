@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Loader;
 using System.Security.Cryptography;
 using Autofac;
-using Daemon.Shared.Plugins;
+using Daemon.Shared.Entities;
 using NLog;
 
 namespace Daemon;

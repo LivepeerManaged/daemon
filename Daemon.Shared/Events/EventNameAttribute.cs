@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Daemon.Shared.Communication.Attributes;
+﻿namespace Daemon.Shared.Events;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class EventNameAttribute : Attribute {

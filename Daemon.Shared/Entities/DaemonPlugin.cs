@@ -1,6 +1,6 @@
 ﻿using Autofac;
 
-namespace Daemon.Shared.Plugins;
+namespace Daemon.Shared.Entities;
 
 /// <summary>
 /// This is the class which is getting called by Core upon loading the Plugin

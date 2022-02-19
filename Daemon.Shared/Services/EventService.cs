@@ -1,4 +1,5 @@
-﻿using Daemon.Shared.Communication;
+﻿using Daemon.Shared.Entities;
+using Daemon.Shared.Events;
 
 namespace Daemon.Shared.Services;
 
