@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using Autofac.Core.NonPublicProperty;
 using Daemon.Services;
-using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 using NLog;
 
@@ -15,6 +14,7 @@ public class MainApp {
 	private PluginManager pluginManager;
 	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 	public static IContainer Container;
+
 	public MainApp(CancellationTokenSource cancellationToken) {
 		CancellationToken = cancellationToken;
 	}

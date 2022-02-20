@@ -15,13 +15,13 @@ public class ReflectionsService : IReflectionsService {
 
 	public Dictionary<string, object> DynamicToDictionary(dynamic dynamicObject) {
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
-		
+
 		foreach (PropertyDescriptor propertyDescriptor in TypeDescriptor.GetProperties(dynamicObject))
 			dictionary.Add(propertyDescriptor.Name, propertyDescriptor.GetValue(dynamicObject));
-		
+
 		return dictionary;
 	}
-	
+
 	public Type[] GetAllLoadedTypes() {
 		return GetAllLoadedAssemblies().SelectMany(assembly => assembly.GetTypes()).ToArray();
 	}
@@ -37,14 +37,14 @@ public class ReflectionsService : IReflectionsService {
 	public TAttribute? GetAttributeOfType<TAttribute>(Type type) where TAttribute : Attribute {
 		return type.GetCustomAttribute<TAttribute>();
 	}
-	
+
 	public TAttribute? GetAttributeOfProperty<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute {
 		return propertyInfo.GetCustomAttribute<TAttribute>();
 	}
-	
-	public Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute  {
-		Dictionary<PropertyInfo,TAttribute> dictionary = new Dictionary<PropertyInfo, TAttribute>();
-		
+
+	public Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute {
+		Dictionary<PropertyInfo, TAttribute> dictionary = new Dictionary<PropertyInfo, TAttribute>();
+
 		foreach (PropertyInfo propertyInfo in type.GetProperties()) {
 			TAttribute? customAttribute = propertyInfo.GetCustomAttribute<TAttribute>();
 			if (customAttribute != null)
@@ -60,16 +60,13 @@ public class ReflectionsService : IReflectionsService {
 		return attribute != null;
 	}
  */
-	
+
 	public bool HasAttribute<TAttribute>(Type type) where TAttribute : Attribute {
 		return GetAttributeOfType<TAttribute>(type) != null;
 	}
 
-	
+
 	public bool HasAttribute<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute {
 		return GetAttributeOfProperty<TAttribute>(propertyInfo) != null;
 	}
-	
-	
-
 }

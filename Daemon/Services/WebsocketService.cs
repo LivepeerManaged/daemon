@@ -35,10 +35,10 @@ public class WebsocketService : IWebsocketService {
 
 			object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
 
-			if(commandReturnValue != null)
+			if (commandReturnValue != null)
 				response.CallbackAsync(commandReturnValue);
 		});
-		
+
 		_client.OnConnected += onConnected;
 
 		await _client.ConnectAsync();
@@ -82,7 +82,7 @@ public class WebsocketService : IWebsocketService {
 	}
 
 	// public async Task TriggerVanillaEvent(string eventName, JsonObject obj) => await _client?.EmitAsync(eventName, obj)!;
-	
+
 	// public void OnVanillaEvent(string eventName, Action<object> onCall) => _client?.On(eventName, onCall);
 
 	public void TriggerEvent(Event e) {
