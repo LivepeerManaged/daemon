@@ -68,5 +68,7 @@ public class ReflectionsService {
 	public bool HasAttribute<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute {
 		return GetAttributeOfProperty<TAttribute>(propertyInfo) != null;
 	}
+	
+	
 
 }

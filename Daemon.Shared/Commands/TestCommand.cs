@@ -1,4 +1,6 @@
-﻿namespace Daemon.Shared.Commands; 
+﻿using Daemon.Shared.Services;
+
+namespace Daemon.Shared.Commands; 
 
 [Command("Test", "Test description yay")]
 public class TestCommand: ICommand {
@@ -6,9 +8,9 @@ public class TestCommand: ICommand {
 	public string FirstParameter { get; set; }
 	
 	public string SecondParameter { get; set; }
-	
-	public void onCommand() {
-		Console.WriteLine("Awesome implementation!");
+
+	public object? onCommand() {
 		Console.WriteLine($"FirstParameter: {FirstParameter}, SecondParameter: {SecondParameter}");
+		return null;
 	}
 }

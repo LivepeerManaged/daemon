@@ -17,7 +17,7 @@ public class WebsocketService {
 	private DaemonService DaemonService { get; set; }
 	private ApiServerService ApiServerService { get; set; }
 	private ReflectionsService ReflectionsService { get; set; }
-	private CommandService CommandService { get; set; }
+	private ICommandService CommandService { get; set; }
 	private SocketIO? _client;
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
 	private readonly List<Action<string, Event>> _anyEventList = new();
@@ -40,7 +40,10 @@ public class WebsocketService {
 			if (commandTypeByName == null)
 				return;
 
-			CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
+			object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
+
+			if(commandReturnValue != null)
+				response.CallbackAsync(commandReturnValue);
 		});
 		
 		_client.OnConnected += onConnected;

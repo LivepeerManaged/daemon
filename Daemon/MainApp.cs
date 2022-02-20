@@ -1,12 +1,8 @@
-﻿using System.Dynamic;
-using System.Reflection;
-using System.Text.Json;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core.NonPublicProperty;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 using NLog;
-using TestPlugin;
 
 namespace Daemon;
 
@@ -17,7 +13,7 @@ public class MainApp {
 	private CancellationTokenSource CancellationToken { get; }
 	private PluginManager pluginManager;
 	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
-
+	public static IContainer Container;
 	public MainApp(CancellationTokenSource cancellationToken) {
 		CancellationToken = cancellationToken;
 	}
@@ -29,7 +25,7 @@ public class MainApp {
 		ContainerBuilder containerBuilder = new();
 		registerServices(containerBuilder);
 		pluginManager = new PluginManager(containerBuilder);
-		IContainer container = pluginManager.LoadPlugins();
+		Container = pluginManager.LoadPlugins();
 
 		/*
 		 * CommandService commandService = container.Resolve<CommandService>();
@@ -44,13 +40,8 @@ public class MainApp {
 		}
 		 */
 
-		WebsocketService websocketService = container.Resolve<WebsocketService>();
-		websocketService.OnEvent<TestEvent>(o => {
-			Console.WriteLine("LASDC;ASCASICO");
-		});
-		
+		WebsocketService websocketService = Container.Resolve<WebsocketService>();
 		websocketService.connect((sender, args) => {
-			websocketService.TriggerEvent(new TestEvent());
 			Console.WriteLine("Connected!");
 		});
 	}
@@ -62,7 +53,7 @@ public class MainApp {
 		containerBuilder.RegisterType<DaemonService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<ApiServerService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<ReflectionsService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<CommandService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<CommandService>().As<ICommandService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 	}
 
 	/// <summary>

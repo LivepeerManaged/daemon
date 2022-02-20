@@ -59,6 +59,7 @@ public class PluginManager {
 
 			foreach (Type pluginType in types) {
 				DaemonPlugin daemonPlugin = (DaemonPlugin) Activator.CreateInstance(pluginType)!;
+
 				try {
 					daemonPlugin.RegisterServices(_containerBuilder);
 					_loadedPlugins.Add(daemonPlugin);
@@ -74,8 +75,8 @@ public class PluginManager {
 
 		foreach (DaemonPlugin daemonPlugin in _loadedPlugins) {
 			try {
+				container.InjectUnsetProperties(daemonPlugin);
 				daemonPlugin.OnPluginLoad(container);
-
 				_logger.Info($"Successfully started Plugin \"{daemonPlugin.GetType().FullName}\"!");
 			} catch (Exception e) {
 				_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");

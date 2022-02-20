@@ -1,29 +1,26 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using Autofac;
 using Castle.Core.Internal;
 using Daemon.Shared.Commands;
-using Newtonsoft.Json;
+using Daemon.Shared.Services;
 
-namespace Daemon.Shared.Services;
+namespace Daemon;
 
-public class CommandService {
+public class CommandService : ICommandService {
 	private ReflectionsService ReflectionsService { get; set; }
 
-	public void TriggerCommand(string name, dynamic parameters) {
-		Dictionary<string, object> parameterDictionary = ReflectionsService.DynamicToDictionary(parameters);
-		TriggerCommand(name, parameterDictionary);
-	}
-	
-	public void TriggerCommand(string name, Dictionary<string, JsonElement> parameters) {
+	public object? TriggerCommand(string name, Dictionary<string, JsonElement> parameters) {
 		Type? findCommandTypeByName = GetCommandTypeByName(name);
 
 		if (findCommandTypeByName == null)
 			throw new Exception("Command not found [replace this with real exception!]");
 
-		Console.WriteLine("PREE");
-		ICommand command = BindCommandParameter((Activator.CreateInstance(findCommandTypeByName) as ICommand)!, parameters);
-		Console.WriteLine("FOUND THINGY");
-		command.onCommand();
+		ICommand instance = (Activator.CreateInstance(findCommandTypeByName) as ICommand)!;
+
+		MainApp.Container.InjectUnsetProperties(instance);
+
+		return BindCommandParameter(instance, parameters).onCommand();
 	}
 
 	// TODO Maybe replace this with Official Reflections Binder? 
@@ -37,9 +34,9 @@ public class CommandService {
 
 		return command;
 	}
-	
-	public void TriggerCommand(ICommand command) {
-		command.onCommand();
+
+	public object? TriggerCommand(ICommand command) {
+		return command.onCommand();
 	}
 
 	public CommandParameterAttribute[] GetCommandParameters<T>() where T : ICommand {
