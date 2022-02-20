@@ -2,21 +2,26 @@
 using System.Security.Cryptography;
 using Autofac;
 using Daemon.Shared.Entities;
+using Daemon.Shared.Services;
 using NLog;
 
-namespace Daemon;
+namespace Daemon.Services;
 
 /// <summary>
 /// This is the plugin manager which handles the whole loading with the plugins
 /// </summary>
-public class PluginManager {
+public class PluginService : IPluginService {
 	private readonly List<DaemonPlugin> _loadedPlugins = new();
 	private readonly ContainerBuilder _containerBuilder;
-	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginManager).FullName);
+	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginService).FullName);
 	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
 
-	public PluginManager(ContainerBuilder containerBuilder) {
+	public PluginService(ContainerBuilder containerBuilder) {
 		_containerBuilder = containerBuilder;
+	}
+
+	public List<DaemonPlugin> GetLoadedPlugins() {
+		return _loadedPlugins;
 	}
 
 	private byte[] GetHash(string file) {

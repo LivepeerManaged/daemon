@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Daemon.Shared.Events;
 using Daemon.Shared.Services;
+using Newtonsoft.Json;
 using SocketIOClient;
 
 namespace Daemon.Services;
@@ -36,7 +37,7 @@ public class WebsocketService : IWebsocketService {
 			object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
 
 			if (commandReturnValue != null)
-				response.CallbackAsync(commandReturnValue);
+				response.CallbackAsync(JsonConvert.SerializeObject(commandReturnValue));
 		});
 
 		_client.OnConnected += onConnected;

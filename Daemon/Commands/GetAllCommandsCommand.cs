@@ -1,5 +1,7 @@
 ﻿using Daemon.Services;
 using Daemon.Shared.Commands;
+using Daemon.Shared.Entities;
+using Daemon.Shared.Services;
 
 namespace Daemon;
 
@@ -8,10 +10,9 @@ public class GetAllCommandsCommand : ICommand {
 	[CommandParameter("Plugin", "Used to test stuff", true)]
 	public string Plugin { get; set; }
 
-	public DaemonService DaemonService { get; set; }
+	public ICommandService CommandService { get; set; }
 
 	public object? onCommand() {
-		Console.WriteLine($"GetAllCommands {DaemonService == null} {DaemonService}");
-		return "YAAAY";
+		return CommandService.GetAllCommands().ToArray();
 	}
 }

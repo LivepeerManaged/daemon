@@ -1,4 +1,5 @@
-﻿using Castle.Core.Internal;
+﻿using System.Reflection;
+using Castle.Core.Internal;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Exceptions;
 using Daemon.Shared.Services;
@@ -34,5 +35,16 @@ public class DaemonService : IDaemonService {
 
 	public string getId() {
 		return GetConfig().DaemonId;
+	}
+
+	public AssemblyInfo GetDaemonInfo() {
+		Assembly assembly = Assembly.GetEntryAssembly();
+
+		return new AssemblyInfo {
+			AssemblyName = assembly.GetName().Name,
+			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
+			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
+			Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+		};
 	}
 }

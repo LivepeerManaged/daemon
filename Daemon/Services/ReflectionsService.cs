@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using Daemon.Shared.Entities;
 using Daemon.Shared.Services;
 
 namespace Daemon.Services;
@@ -68,5 +69,14 @@ public class ReflectionsService : IReflectionsService {
 
 	public bool HasAttribute<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute {
 		return GetAttributeOfProperty<TAttribute>(propertyInfo) != null;
+	}
+
+	public AssemblyInfo GetAssemblyInfo(Assembly assembly) {
+		return new AssemblyInfo {
+			AssemblyName = assembly.GetName().Name,
+			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
+			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
+			Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+		};
 	}
 }

@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
         <RootNamespace>TestPlugin</RootNamespace>
         <AssemblyName>test.plugin</AssemblyName>
+        <AssemblyTitle>Test</AssemblyTitle>
+        <Description>This is just a plugin for testing purposes during the development</Description>
         <OutputPath>../lib/plugins/</OutputPath>
     </PropertyGroup>
 

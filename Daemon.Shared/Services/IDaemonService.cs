@@ -8,4 +8,5 @@ public interface IDaemonService {
 	IDaemonConfig GetConfig();
 	string GetSecret();
 	string getId();
+	AssemblyInfo GetDaemonInfo();
 }

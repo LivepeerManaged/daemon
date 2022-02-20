@@ -11,7 +11,7 @@ namespace Daemon;
 /// </summary>
 public class MainApp {
 	private CancellationTokenSource CancellationToken { get; }
-	private PluginManager pluginManager;
+	private PluginService _pluginService;
 	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 	public static IContainer Container;
 
@@ -24,22 +24,12 @@ public class MainApp {
 	/// </summary>
 	public void StartApp() {
 		ContainerBuilder containerBuilder = new();
+		_pluginService = new PluginService(containerBuilder);
+		
+		
 		registerServices(containerBuilder);
-		pluginManager = new PluginManager(containerBuilder);
-		Container = pluginManager.LoadPlugins();
-
-		/*
-		 * CommandService commandService = container.Resolve<CommandService>();
-
-		commandService.TriggerCommand("Test", new {
-			FirstParameter = "TESTLOL",
-			SecondParameter = "SECOND WOOO"
-		});
-
-		foreach (CommandParameterAttribute commandParameterAttribute in commandService.GetCommandParameters<TestCommand>()) {
-			Console.WriteLine($"{commandParameterAttribute.Name}: {commandParameterAttribute.Description}");
-		}
-		 */
+		Container = _pluginService.LoadPlugins();
+		
 
 		IWebsocketService websocketService = Container.Resolve<IWebsocketService>();
 		websocketService.connect((sender, args) => {
@@ -48,6 +38,7 @@ public class MainApp {
 	}
 
 	private void registerServices(ContainerBuilder containerBuilder) {
+		containerBuilder.Register(c => _pluginService).SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<WebsocketService>().As<IWebsocketService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<ConfigService>().As<IConfigService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
@@ -67,7 +58,7 @@ public class MainApp {
 
 		Logger.Info("Unloading all plugins");
 
-		pluginManager.UnloadPlugins();
+		_pluginService.UnloadPlugins();
 
 		Logger.Info("Successfully unloaded all plugins");
 

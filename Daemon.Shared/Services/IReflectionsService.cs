@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Daemon.Shared.Entities;
 
 namespace Daemon.Shared.Services;
 
@@ -14,4 +15,5 @@ public interface IReflectionsService {
 	Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute;
 	bool HasAttribute<TAttribute>(Type type) where TAttribute : Attribute;
 	bool HasAttribute<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute;
+	public AssemblyInfo GetAssemblyInfo(Assembly assembly);
 }
