@@ -1,7 +1,14 @@
-﻿using System.Reflection;
+﻿using System.Dynamic;
+using System.Net;
+using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using Autofac.Core;
+using Castle.Components.DictionaryAdapter;
+using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Events;
+using Newtonsoft.Json;
 using SocketIOClient;
 
 namespace Daemon.Shared.Services;
@@ -10,11 +17,13 @@ public class WebsocketService {
 	private DaemonService DaemonService { get; set; }
 	private ApiServerService ApiServerService { get; set; }
 	private ReflectionsService ReflectionsService { get; set; }
+	private CommandService CommandService { get; set; }
 	private SocketIO? _client;
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
 	private readonly List<Action<string, Event>> _anyEventList = new();
 
 	public async Task connect(EventHandler onConnected) {
+		Console.WriteLine(DaemonService.GetWebsocketServer());
 		_client = new SocketIO(DaemonService.GetWebsocketServer(), new SocketIOOptions() {
 			Query = new KeyValuePair<string, string>[] {
 				new("token", await ApiServerService.DaemonLogin(DaemonService.getId(), DaemonService.GetSecret()))
@@ -23,12 +32,23 @@ public class WebsocketService {
 
 		_client.OnAny((name, response) => TriggerEvent(name, response.GetValue()));
 
+		_client.On("TriggerCommand", response => {
+			string commandName = response.GetValue().ToString();
+			JsonElement parameter = response.GetValue(1);
+			Type? commandTypeByName = CommandService.GetCommandTypeByName(commandName);
+
+			if (commandTypeByName == null)
+				return;
+
+			CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
+		});
+		
 		_client.OnConnected += onConnected;
 
 		await _client.ConnectAsync();
 	}
 
-	public void TriggerEvent(string eventName, JsonElement json) {
+	public void TriggerEvent(string eventName, JsonElement json = new JsonElement()) {
 		Type? eventTypeByName = GetEventTypeByName(eventName);
 
 		if (eventTypeByName == null) {
@@ -65,33 +85,37 @@ public class WebsocketService {
 		_anyEventList.Add(onCall);
 	}
 
+	// public async Task TriggerVanillaEvent(string eventName, JsonObject obj) => await _client?.EmitAsync(eventName, obj)!;
+	
+	// public void OnVanillaEvent(string eventName, Action<object> onCall) => _client?.On(eventName, onCall);
+
 	public void TriggerEvent(Event e) {
 		_client?.EmitAsync(GetEventName(e), e);
 	}
 
 	private static string GetEventName(Type e) {
-		return TryGetEventAttribute(e, out EventNameAttribute? attribute) ? attribute.EventName : e.Name;
+		return TryGetEventAttribute(e, out EventAttribute? attribute) ? attribute.EventName : e.Name;
 	}
 
 	private static string GetEventName(Event e) {
-		return TryGetEventAttribute(e, out EventNameAttribute? attribute) ? attribute.EventName : e.GetType().Name;
+		return TryGetEventAttribute(e, out EventAttribute? attribute) ? attribute.EventName : e.GetType().Name;
 	}
 
-	private static bool TryGetEventAttribute(Type e, out EventNameAttribute? attribute) {
-		attribute = e.GetCustomAttribute<EventNameAttribute>();
+	private static bool TryGetEventAttribute(Type e, out EventAttribute? attribute) {
+		attribute = e.GetCustomAttribute<EventAttribute>();
 		return attribute != null;
 	}
 
-	private static bool TryGetEventAttribute(Event e, out EventNameAttribute? attribute) {
-		attribute = e.GetType().GetCustomAttribute<EventNameAttribute>();
+	private static bool TryGetEventAttribute(Event e, out EventAttribute? attribute) {
+		attribute = e.GetType().GetCustomAttribute<EventAttribute>();
 		return attribute != null;
 	}
 
 	private Type[] GetAllEventTypes() {
-		return ReflectionsService.GetAllAttributedTypes<EventNameAttribute>();
+		return ReflectionsService.GetAllAttributedTypes<EventAttribute>();
 	}
 
 	private Type? GetEventTypeByName(string name) {
-		return GetAllEventTypes().First(type => type.GetCustomAttribute<EventNameAttribute>()?.EventName == name);
+		return GetAllEventTypes().First(type => type.GetCustomAttribute<EventAttribute>()?.EventName == name);
 	}
 }

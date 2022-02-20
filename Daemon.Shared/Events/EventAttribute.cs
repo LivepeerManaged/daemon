@@ -1,10 +1,10 @@
 ﻿namespace Daemon.Shared.Events;
 
 [AttributeUsage(AttributeTargets.Class)]
-public class EventNameAttribute : Attribute {
+public class EventAttribute : Attribute {
 	public string? EventName { get; }
 
-	public EventNameAttribute(string eventName) {
+	public EventAttribute(string eventName) {
 		EventName = eventName;
 	}
 }
