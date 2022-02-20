@@ -20,9 +20,7 @@ public class CommandService : ICommandService {
 		if (findCommandTypeByName == null)
 			throw new Exception("Command not found [replace this with real exception!]");
 
-		ICommand instance = (Activator.CreateInstance(findCommandTypeByName) as ICommand)!;
-
-		MainApp.Container.InjectUnsetProperties(instance);
+		ICommand instance = MainApp.Container.InjectUnsetProperties((Activator.CreateInstance(findCommandTypeByName) as ICommand)!);
 
 		return BindCommandParameter(instance, parameters).onCommand();
 	}
@@ -66,10 +64,10 @@ public class CommandService : ICommandService {
 		foreach (Type commandType in commandTypes) {
 			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
 
-			if (!commandInfos.ContainsKey(assemblyInfo))
+			if (commandInfos.Keys.All(info => info.Name != assemblyInfo.Name))
 				commandInfos.Add(assemblyInfo, new Dictionary<CommandAttribute, CommandParameterAttribute[]>());
 			
-			commandInfos[assemblyInfo].Add(GetCommandAttribute(commandType), GetCommandParameters(commandType));
+			commandInfos.First(info => info.Key.Name == assemblyInfo.Name).Value.Add(GetCommandAttribute(commandType), GetCommandParameters(commandType));
 		}
 
 		return commandInfos;

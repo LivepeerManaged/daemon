@@ -41,7 +41,7 @@ public class DaemonService : IDaemonService {
 		Assembly assembly = Assembly.GetEntryAssembly();
 
 		return new AssemblyInfo {
-			AssemblyName = assembly.GetName().Name,
+			Name = assembly.GetName().Name,
 			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
 			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
 			Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
