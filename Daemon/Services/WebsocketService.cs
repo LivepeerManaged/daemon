@@ -1,22 +1,15 @@
-﻿using System.Dynamic;
-using System.Net;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using Autofac.Core;
-using Castle.Components.DictionaryAdapter;
-using Daemon.Shared.Commands;
-using Daemon.Shared.Entities;
 using Daemon.Shared.Events;
-using Newtonsoft.Json;
+using Daemon.Shared.Services;
 using SocketIOClient;
 
-namespace Daemon.Shared.Services;
+namespace Daemon.Services;
 
-public class WebsocketService {
-	private DaemonService DaemonService { get; set; }
-	private ApiServerService ApiServerService { get; set; }
-	private ReflectionsService ReflectionsService { get; set; }
+public class WebsocketService : IWebsocketService {
+	private IDaemonService DaemonService { get; set; }
+	private IApiServerService ApiServerService { get; set; }
+	private IReflectionsService ReflectionsService { get; set; }
 	private ICommandService CommandService { get; set; }
 	private SocketIO? _client;
 	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();

@@ -1,10 +1,11 @@
 ﻿using System.Net.Http.Json;
 using Daemon.Shared.Entities;
+using Daemon.Shared.Services;
 
-namespace Daemon.Shared.Services;
+namespace Daemon.Services;
 
-public class ApiServerService {
-	private DaemonService DaemonService { get; set; }
+public class ApiServerService : IApiServerService {
+	private IDaemonService DaemonService { get; set; }
 	private readonly HttpClient _httpClient = new();
 
 	public async Task<string> DaemonLogin(string id, string secret) {

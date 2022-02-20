@@ -1,9 +1,9 @@
-﻿using Daemon.Shared.Entities;
-using Daemon.Shared.Events;
+﻿using Daemon.Shared.Events;
+using Daemon.Shared.Services;
 
-namespace Daemon.Shared.Services;
+namespace Daemon.Services;
 
-public class EventService {
+public class EventService : IEventService {
 	private readonly Dictionary<Type, List<Action<Event>>> _registeredEvents = new();
 
 	public void OnEvent<T>(Action<T> onCall) where T : Event {

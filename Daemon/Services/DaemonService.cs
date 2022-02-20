@@ -1,13 +1,12 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using Castle.Core.Internal;
+﻿using Castle.Core.Internal;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Exceptions;
+using Daemon.Shared.Services;
 
-namespace Daemon.Shared.Services;
+namespace Daemon.Services;
 
-public class DaemonService {
-	private ConfigService ConfigService { get; set; }
+public class DaemonService : IDaemonService {
+	private IConfigService ConfigService { get; set; }
 
 	public Uri GetApiServer() {
 		if (GetConfig().ApiServer.IsNullOrEmpty()) {

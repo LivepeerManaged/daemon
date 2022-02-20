@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using Daemon.Shared.Services;
 
-namespace Daemon.Shared.Services;
+namespace Daemon.Services;
 
-public class ReflectionsService {
+public class ReflectionsService : IReflectionsService {
 	public Type[] GetAllImplementationsOf<T>() {
 		return GetAllLoadedTypes().Where(type => typeof(T).IsAssignableFrom(type) && type != typeof(T)).ToArray();
 	}

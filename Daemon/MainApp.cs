@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Core.NonPublicProperty;
+using Daemon.Services;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 using NLog;
@@ -40,19 +41,19 @@ public class MainApp {
 		}
 		 */
 
-		WebsocketService websocketService = Container.Resolve<WebsocketService>();
+		IWebsocketService websocketService = Container.Resolve<IWebsocketService>();
 		websocketService.connect((sender, args) => {
 			Console.WriteLine("Connected!");
 		});
 	}
 
 	private void registerServices(ContainerBuilder containerBuilder) {
-		containerBuilder.RegisterType<EventService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<WebsocketService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<ConfigService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<DaemonService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<ApiServerService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
-		containerBuilder.RegisterType<ReflectionsService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<WebsocketService>().As<IWebsocketService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<ConfigService>().As<IConfigService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<DaemonService>().As<IDaemonService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<ApiServerService>().As<IApiServerService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<ReflectionsService>().As<IReflectionsService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<CommandService>().As<ICommandService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 	}
 

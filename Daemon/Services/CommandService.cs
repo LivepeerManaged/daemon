@@ -5,10 +5,10 @@ using Castle.Core.Internal;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 
-namespace Daemon;
+namespace Daemon.Services;
 
 public class CommandService : ICommandService {
-	private ReflectionsService ReflectionsService { get; set; }
+	private IReflectionsService ReflectionsService { get; set; }
 
 	public object? TriggerCommand(string name, Dictionary<string, JsonElement> parameters) {
 		Type? findCommandTypeByName = GetCommandTypeByName(name);
