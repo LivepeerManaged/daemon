@@ -1,1 +1,1 @@
-# LivepeerManaged Daemon
+# THIS IS STILL IN DEVELOPMENT!
