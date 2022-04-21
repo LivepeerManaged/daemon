@@ -9,6 +9,9 @@ public class ReflectionsService : IReflectionsService {
 	public Type[] GetAllImplementationsOf<T>() {
 		return GetAllLoadedTypes().Where(type => typeof(T).IsAssignableFrom(type) && type != typeof(T)).ToArray();
 	}
+	public Type[] GetAllImplementationsInAssemblyOf<T>(Assembly assembly) {
+		return GetAllLoadedTypes().Where(type => typeof(T).IsAssignableFrom(type) && type != typeof(T) && type.Assembly == assembly).ToArray();
+	}
 
 	public Type[] GetTypesOfAssembly(Assembly assembly) {
 		return assembly.GetTypes();
@@ -72,11 +75,12 @@ public class ReflectionsService : IReflectionsService {
 	}
 
 	public AssemblyInfo GetAssemblyInfo(Assembly assembly) {
+		
 		return new AssemblyInfo {
 			Name = assembly.GetName().Name,
 			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
 			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
-			Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+			Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion // Why the fuck is it this attribute and not AssemblyVersionAttribute??? 
 		};
 	}
 }

@@ -5,6 +5,7 @@ namespace Daemon.Shared.Services;
 
 public interface IReflectionsService {
 	Type[] GetAllImplementationsOf<T>();
+	Type[] GetAllImplementationsInAssemblyOf<T>(Assembly assembly);
 	Type[] GetTypesOfAssembly(Assembly assembly);
 	Dictionary<string, object> DynamicToDictionary(dynamic dynamicObject);
 	Type[] GetAllLoadedTypes();

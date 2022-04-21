@@ -34,4 +34,8 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Commands" />
+    </ItemGroup>
 </Project>

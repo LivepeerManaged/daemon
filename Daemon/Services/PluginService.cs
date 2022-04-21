@@ -11,7 +11,7 @@ namespace Daemon.Services;
 /// This is the plugin manager which handles the whole loading with the plugins
 /// </summary>
 public class PluginService : IPluginService {
-	private readonly List<DaemonPlugin> _loadedPlugins = new();
+	private readonly Dictionary<DaemonPlugin, bool> _plugins = new();
 	private readonly ContainerBuilder _containerBuilder;
 	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginService).FullName);
 	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
@@ -20,8 +20,8 @@ public class PluginService : IPluginService {
 		_containerBuilder = containerBuilder;
 	}
 
-	public List<DaemonPlugin> GetLoadedPlugins() {
-		return _loadedPlugins;
+	public Dictionary<DaemonPlugin, bool> GetPlugins() {
+		return _plugins;
 	}
 
 	private byte[] GetHash(string file) {
@@ -67,7 +67,7 @@ public class PluginService : IPluginService {
 
 				try {
 					daemonPlugin.RegisterServices(_containerBuilder);
-					_loadedPlugins.Add(daemonPlugin);
+					_plugins.Add(daemonPlugin, true);
 					_logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
 				} catch (Exception e) {
 					_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
@@ -77,8 +77,7 @@ public class PluginService : IPluginService {
 		}
 
 		IContainer container = _containerBuilder.Build();
-
-		foreach (DaemonPlugin daemonPlugin in _loadedPlugins) {
+		foreach ((DaemonPlugin daemonPlugin, bool enabled) in _plugins) {
 			try {
 				container.InjectUnsetProperties(daemonPlugin);
 				daemonPlugin.OnPluginLoad(container);
@@ -89,7 +88,7 @@ public class PluginService : IPluginService {
 			}
 		}
 
-		_logger.Info($"Loaded and started {_loadedPlugins.Count} plugins");
+		_logger.Info($"Loaded and started {_plugins.Count} plugins");
 		return container;
 	}
 
@@ -97,7 +96,8 @@ public class PluginService : IPluginService {
 	/// This methods
 	/// </summary>
 	public void UnloadPlugins() {
-		foreach (DaemonPlugin currentPlugin in _loadedPlugins) {
+		foreach ((DaemonPlugin currentPlugin, bool enabled) in _plugins) {
+			_plugins[currentPlugin] = false;
 			currentPlugin.OnPluginDisable();
 		}
 	}

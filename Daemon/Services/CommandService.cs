@@ -6,6 +6,7 @@ using Castle.Core.Internal;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Services;
+using NLog;
 
 namespace Daemon.Services;
 
@@ -22,10 +23,9 @@ public class CommandService : ICommandService {
 
 		ICommand instance = MainApp.Container.InjectUnsetProperties((Activator.CreateInstance(findCommandTypeByName) as ICommand)!);
 
-		return BindCommandParameter(instance, parameters).onCommand();
+		return TriggerCommand(BindCommandParameter(instance, parameters));
 	}
 
-	// TODO Maybe replace this with Official Reflections Binder? 
 	private ICommand BindCommandParameter(ICommand command, Dictionary<string, JsonElement> parameters) {
 		Dictionary<PropertyInfo, CommandParameterAttribute> propertiesWithAttributes = ReflectionsService.GetPropertiesWithAttributes<CommandParameterAttribute>(command.GetType());
 
@@ -63,11 +63,17 @@ public class CommandService : ICommandService {
 		
 		foreach (Type commandType in commandTypes) {
 			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
+			commandInfos.Add(assemblyInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
+		}
 
-			if (commandInfos.Keys.All(info => info.Name != assemblyInfo.Name))
-				commandInfos.Add(assemblyInfo, new Dictionary<CommandAttribute, CommandParameterAttribute[]>());
-			
-			commandInfos.First(info => info.Key.Name == assemblyInfo.Name).Value.Add(GetCommandAttribute(commandType), GetCommandParameters(commandType));
+		return commandInfos;
+	}
+	public Dictionary<CommandAttribute, CommandParameterAttribute[]> GetCommandsFromPluginAssembly(Assembly assembly) {
+		Type[] commandTypes = ReflectionsService.GetAllImplementationsInAssemblyOf<ICommand>(assembly);
+		Dictionary<CommandAttribute, CommandParameterAttribute[]> commandInfos = new();
+		
+		foreach (Type commandType in commandTypes) {
+			commandInfos.Add(GetCommandAttribute(commandType), GetCommandParameters(commandType));
 		}
 
 		return commandInfos;

@@ -7,18 +7,19 @@
         <RootNamespace>TestPlugin</RootNamespace>
         <AssemblyName>test.plugin</AssemblyName>
         <AssemblyTitle>Test</AssemblyTitle>
+        <Version>1.0.0</Version>
         <Description>This is just a plugin for testing purposes during the development</Description>
         <OutputPath>../lib/plugins/</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj"/>
+        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Config.Net" Version="4.19.0"/>
-        <PackageReference Include="Config.Net.Json" Version="4.19.0"/>
-        <PackageReference Include="SocketIOClient" Version="3.0.5"/>
+        <PackageReference Include="Config.Net" Version="4.19.0" />
+        <PackageReference Include="Config.Net.Json" Version="4.19.0" />
+        <PackageReference Include="SocketIOClient" Version="3.0.5" />
     </ItemGroup>
 
     <PropertyGroup>

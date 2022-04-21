@@ -1,4 +1,6 @@
-﻿using NLog;
+﻿using System.Runtime.ExceptionServices;
+using System.Security;
+using NLog;
 
 namespace Daemon;
 
@@ -21,9 +23,7 @@ public class Program : IDisposable {
 	/// <exception cref="InvalidOperationException"></exception>
 	public static async Task Main(string[] args) {
 		CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationToken());
-
-		new MainApp(cancellationTokenSource).StartApp();
-
+		await new MainApp(cancellationTokenSource).StartApp();
 		cancellationTokenSource.Token.WaitHandle.WaitOne();
 	}
 }

@@ -1,8 +1,12 @@
-﻿using Autofac;
+﻿using System.Runtime.ExceptionServices;
+using System.Security;
+using Autofac;
 using Autofac.Core.NonPublicProperty;
 using Daemon.Services;
 using Daemon.Shared.Services;
+using Hardware.Info;
 using NLog;
+using TestPlugin;
 
 namespace Daemon;
 
@@ -10,35 +14,44 @@ namespace Daemon;
 /// This is the MainApp which is the central point of the Daemon
 /// </summary>
 public class MainApp {
-	private CancellationTokenSource CancellationToken { get; }
+	private CancellationTokenSource ApplicationCancellationToken { get; }
+	private CancellationTokenSource SocketServerCancellationToken { get; }
 	private PluginService _pluginService;
 	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 	public static IContainer Container;
 
-	public MainApp(CancellationTokenSource cancellationToken) {
-		CancellationToken = cancellationToken;
+	public MainApp(CancellationTokenSource applicationCancellationToken) {
+		ApplicationCancellationToken = applicationCancellationToken;
+		SocketServerCancellationToken = new CancellationTokenSource();
 	}
 
 	/// <summary>
 	/// This method starts the Daemon.
 	/// </summary>
-	public void StartApp() {
+	
+	public async Task StartApp() {
 		ContainerBuilder containerBuilder = new();
 		_pluginService = new PluginService(containerBuilder);
-		
-		
+
 		registerServices(containerBuilder);
 		Container = _pluginService.LoadPlugins();
-		
-
 		IWebsocketService websocketService = Container.Resolve<IWebsocketService>();
-		websocketService.connect((sender, args) => {
-			Console.WriteLine("Connected!");
-		});
+		do {
+			try {
+				// TODO Reset the token here because it might can cause problems after disconnecting... more testing required
+				await websocketService.connect(SocketServerCancellationToken);
+			} catch (Exception e) {
+				Logger.Error("Error while connecting to backend! {}", e);
+			}
+
+			Logger.Info($"Disconencted from backend! trying to reconnect...");
+			Thread.Sleep(3000);
+		//} while (!CancellationToken.IsCancellationRequested);
+		} while (true);
 	}
 
 	private void registerServices(ContainerBuilder containerBuilder) {
-		containerBuilder.Register(c => _pluginService).SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.Register(c => _pluginService).SingleInstance().As<IPluginService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<EventService>().As<IEventService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<WebsocketService>().As<IWebsocketService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<ConfigService>().As<IConfigService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
@@ -64,6 +77,6 @@ public class MainApp {
 
 		Logger.Info("Successfully stopped Daemon");
 
-		CancellationToken.Cancel();
+		ApplicationCancellationToken.Cancel();
 	}
 }

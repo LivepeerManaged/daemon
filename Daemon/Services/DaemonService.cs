@@ -8,6 +8,7 @@ namespace Daemon.Services;
 
 public class DaemonService : IDaemonService {
 	private IConfigService ConfigService { get; set; }
+	private IReflectionsService ReflectionsService { get; set; }
 
 	public Uri GetApiServer() {
 		if (GetConfig().ApiServer.IsNullOrEmpty()) {
@@ -38,13 +39,6 @@ public class DaemonService : IDaemonService {
 	}
 
 	public AssemblyInfo GetDaemonInfo() {
-		Assembly assembly = Assembly.GetEntryAssembly();
-
-		return new AssemblyInfo {
-			Name = assembly.GetName().Name,
-			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
-			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
-			Version = assembly.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
-		};
+		return ReflectionsService.GetAssemblyInfo(Assembly.GetEntryAssembly());
 	}
 }
