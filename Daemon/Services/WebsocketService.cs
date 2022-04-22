@@ -36,14 +36,6 @@ public class WebsocketService : IWebsocketService {
 			ReconnectionDelay = 1000
 		});
 
-		_client.OnAny((name, response) => {
-			try {
-				TriggerEvent(name, response.GetValue());
-			} catch (Exception e) {
-				Logger.Error("Error while TriggeringEvent {} {}", response.GetValue().GetString(), e);
-			}
-		});
-
 		_client.On("TriggerCommand", response => {
 			// TODO error handling for missing commandname
 			try {
