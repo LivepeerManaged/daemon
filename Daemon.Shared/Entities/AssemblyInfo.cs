@@ -1,4 +1,4 @@
-﻿namespace Daemon.Shared.Entities; 
+﻿namespace Daemon.Shared.Entities;
 
 public class AssemblyInfo {
 	public string Name { get; set; }

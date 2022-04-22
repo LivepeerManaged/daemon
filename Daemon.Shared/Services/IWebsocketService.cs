@@ -5,7 +5,7 @@ namespace Daemon.Shared.Services;
 
 public interface IWebsocketService {
 	Task connect(CancellationTokenSource socketServerCancellationToken);
-	void TriggerEvent(string eventName, JsonElement json = new JsonElement());
+	void TriggerEvent(string eventName, JsonElement json = new());
 	void TriggerEvent(Event e);
 	void OnEvent<T>(Action<T> onCall) where T : Event;
 	void OnEvent(Action<string, object> onCall);

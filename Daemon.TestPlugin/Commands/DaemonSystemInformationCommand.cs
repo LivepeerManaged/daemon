@@ -6,16 +6,16 @@ namespace Daemon.Commands;
 
 [Command("DaemonSystemInformation", "Returns a list of all commands")]
 public class DaemonSystemInformation : ICommand {
-	public ICommandService CommandService { get; set; }
 	private static readonly IHardwareInfo HardwareInfo = new HardwareInfo();
+	public ICommandService CommandService { get; set; }
 
 	public object? onCommand() {
 		Parallel.Invoke(() => HardwareInfo.RefreshCPUList(), () => HardwareInfo.RefreshMemoryStatus());
 		return new {
 			OS = GetOsInfo(),
-			MachineName = Environment.MachineName,
+			Environment.MachineName,
 			Processor = HardwareInfo.CpuList.Select(cpu => cpu.Name).Aggregate((s1, s2) => $"{s1}, {s2}"),
-			Memory = Math.Round(HardwareInfo.MemoryStatus.TotalPhysical / 1024d / 1024d / 1024d),
+			Memory = Math.Round(HardwareInfo.MemoryStatus.TotalPhysical / 1024d / 1024d / 1024d)
 		};
 	}
 

@@ -1,12 +1,10 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using Autofac;
-using Castle.Core;
 using Castle.Core.Internal;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Services;
-using NLog;
 
 namespace Daemon.Services;
 
@@ -18,23 +16,13 @@ public class CommandService : ICommandService {
 	public object? TriggerCommand(string name, Dictionary<string, JsonElement> parameters) {
 		Type? findCommandTypeByName = GetCommandTypeByName(name);
 
-		if (findCommandTypeByName == null)
+		if (findCommandTypeByName == null) {
 			throw new Exception("Command not found [replace this with real exception!]");
+		}
 
 		ICommand instance = MainApp.Container.InjectUnsetProperties((Activator.CreateInstance(findCommandTypeByName) as ICommand)!);
 
 		return TriggerCommand(BindCommandParameter(instance, parameters));
-	}
-
-	private ICommand BindCommandParameter(ICommand command, Dictionary<string, JsonElement> parameters) {
-		Dictionary<PropertyInfo, CommandParameterAttribute> propertiesWithAttributes = ReflectionsService.GetPropertiesWithAttributes<CommandParameterAttribute>(command.GetType());
-
-		foreach ((string key, JsonElement value) in parameters.Where(parameterPair => propertiesWithAttributes.Any(valuePair => valuePair.Value.Name == parameterPair.Key))) {
-			PropertyInfo propertyInfo = propertiesWithAttributes.First(pair => pair.Value.Name == key).Key;
-			propertyInfo.SetValue(command, value.Deserialize(propertyInfo.PropertyType));
-		}
-
-		return command;
 	}
 
 	public object? TriggerCommand(ICommand command) {
@@ -60,7 +48,7 @@ public class CommandService : ICommandService {
 	public Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands() {
 		Type[] commandTypes = ReflectionsService.GetAllImplementationsOf<ICommand>();
 		Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> commandInfos = new();
-		
+
 		foreach (Type commandType in commandTypes) {
 			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
 			commandInfos.Add(assemblyInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
@@ -68,14 +56,26 @@ public class CommandService : ICommandService {
 
 		return commandInfos;
 	}
+
 	public Dictionary<CommandAttribute, CommandParameterAttribute[]> GetCommandsFromPluginAssembly(Assembly assembly) {
 		Type[] commandTypes = ReflectionsService.GetAllImplementationsInAssemblyOf<ICommand>(assembly);
 		Dictionary<CommandAttribute, CommandParameterAttribute[]> commandInfos = new();
-		
+
 		foreach (Type commandType in commandTypes) {
 			commandInfos.Add(GetCommandAttribute(commandType), GetCommandParameters(commandType));
 		}
 
 		return commandInfos;
+	}
+
+	private ICommand BindCommandParameter(ICommand command, Dictionary<string, JsonElement> parameters) {
+		Dictionary<PropertyInfo, CommandParameterAttribute> propertiesWithAttributes = ReflectionsService.GetPropertiesWithAttributes<CommandParameterAttribute>(command.GetType());
+
+		foreach ((string key, JsonElement value) in parameters.Where(parameterPair => propertiesWithAttributes.Any(valuePair => valuePair.Value.Name == parameterPair.Key))) {
+			PropertyInfo propertyInfo = propertiesWithAttributes.First(pair => pair.Value.Name == key).Key;
+			propertyInfo.SetValue(command, value.Deserialize(propertyInfo.PropertyType));
+		}
+
+		return command;
 	}
 }

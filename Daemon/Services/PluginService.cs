@@ -8,13 +8,13 @@ using NLog;
 namespace Daemon.Services;
 
 /// <summary>
-/// This is the plugin manager which handles the whole loading with the plugins
+///     This is the plugin manager which handles the whole loading with the plugins
 /// </summary>
 public class PluginService : IPluginService {
-	private readonly Dictionary<DaemonPlugin, bool> _plugins = new();
 	private readonly ContainerBuilder _containerBuilder;
 	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginService).FullName);
 	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
+	private readonly Dictionary<DaemonPlugin, bool> _plugins = new();
 
 	public PluginService(ContainerBuilder containerBuilder) {
 		_containerBuilder = containerBuilder;
@@ -24,32 +24,8 @@ public class PluginService : IPluginService {
 		return _plugins;
 	}
 
-	private byte[] GetHash(string file) {
-		using MD5 md5 = MD5.Create();
-		using FileStream stream = File.OpenRead(file);
-		return md5.ComputeHash(stream);
-	}
-
-	private FileInfo[] GetPluginsInFolder() {
-		Dictionary<FileInfo, byte[]> foundPlugins = new();
-
-		foreach (FileInfo assemblyFile in _pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
-			byte[] hash = GetHash(assemblyFile.FullName);
-
-			if (foundPlugins.ContainsValue(hash)) {
-				continue;
-			}
-
-			_logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
-
-			foundPlugins.Add(assemblyFile, hash);
-		}
-
-		return foundPlugins.Keys.ToArray();
-	}
-
 	/// <summary>
-	/// This methods loads the plugins out of the plugins folder.
+	///     This methods loads the plugins out of the plugins folder.
 	/// </summary>
 	public IContainer LoadPlugins() {
 		if (!_pluginDirectory.Exists) {
@@ -93,12 +69,36 @@ public class PluginService : IPluginService {
 	}
 
 	/// <summary>
-	/// This methods
+	///     This methods
 	/// </summary>
 	public void UnloadPlugins() {
 		foreach ((DaemonPlugin currentPlugin, bool enabled) in _plugins) {
 			_plugins[currentPlugin] = false;
 			currentPlugin.OnPluginDisable();
 		}
+	}
+
+	private byte[] GetHash(string file) {
+		using MD5 md5 = MD5.Create();
+		using FileStream stream = File.OpenRead(file);
+		return md5.ComputeHash(stream);
+	}
+
+	private FileInfo[] GetPluginsInFolder() {
+		Dictionary<FileInfo, byte[]> foundPlugins = new();
+
+		foreach (FileInfo assemblyFile in _pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
+			byte[] hash = GetHash(assemblyFile.FullName);
+
+			if (foundPlugins.ContainsValue(hash)) {
+				continue;
+			}
+
+			_logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
+
+			foundPlugins.Add(assemblyFile, hash);
+		}
+
+		return foundPlugins.Keys.ToArray();
 	}
 }

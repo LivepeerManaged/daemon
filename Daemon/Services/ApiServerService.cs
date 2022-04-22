@@ -5,8 +5,8 @@ using Daemon.Shared.Services;
 namespace Daemon.Services;
 
 public class ApiServerService : IApiServerService {
-	private IDaemonService DaemonService { get; set; }
 	private readonly HttpClient _httpClient = new();
+	private IDaemonService DaemonService { get; set; }
 
 	public async Task<string> DaemonLogin(string id, string secret) {
 		return await PostFormRequestAsString(new Uri(DaemonService.GetApiServer(), "/daemon/login"), new Dictionary<string, string> {

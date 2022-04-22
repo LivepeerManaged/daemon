@@ -1,15 +1,12 @@
-﻿using System.Runtime.ExceptionServices;
-using System.Security;
-using NLog;
+﻿using NLog;
 
 namespace Daemon;
 
 /// <summary>
-/// 
 /// </summary>
 public class Program : IDisposable {
 	/// <summary>
-	/// What should happen on dispose.
+	///     What should happen on dispose.
 	/// </summary>
 	public void Dispose() {
 		LogManager.Flush();
@@ -17,7 +14,7 @@ public class Program : IDisposable {
 	}
 
 	/// <summary>
-	/// Entrypoint of the application
+	///     Entrypoint of the application
 	/// </summary>
 	/// <param name="args"></param>
 	/// <exception cref="InvalidOperationException"></exception>

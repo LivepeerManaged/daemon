@@ -11,7 +11,7 @@ public class GetAllPluginsCommand : ICommand {
 	public ICommandService CommandService { get; set; }
 
 	public object onCommand() {
-		List<dynamic> result = new List<dynamic>();
+		List<dynamic> result = new();
 		foreach ((DaemonPlugin? daemonPlugin, bool enabled) in PluginService.GetPlugins()) {
 			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(daemonPlugin.GetType().Assembly);
 			Dictionary<CommandAttribute, CommandParameterAttribute[]> commandsFromPlugin = CommandService.GetCommandsFromPluginAssembly(daemonPlugin.GetType().Assembly);
@@ -20,7 +20,7 @@ public class GetAllPluginsCommand : ICommand {
 			 * I did not want to create a class for all transfer objects.
 			 * But maybe i will do because this is kinda ugly :(
 			 */
-			List<dynamic> commands = new List<dynamic>();
+			List<dynamic> commands = new();
 			foreach ((CommandAttribute? command, CommandParameterAttribute[]? parameters) in commandsFromPlugin) {
 				dynamic commandInfo = new ExpandoObject();
 				commandInfo.Name = command.Name;
@@ -34,8 +34,10 @@ public class GetAllPluginsCommand : ICommand {
 						commandParameterAttribute.DefaultValue
 					});
 				}
+
 				commands.Add(commandInfo);
 			}
+
 			result.Add(new {
 				assemblyInfo.Name,
 				assemblyInfo.Title,
@@ -49,8 +51,7 @@ public class GetAllPluginsCommand : ICommand {
 		return result;
 	}
 
-	class PluginInfo {
+	private class PluginInfo {
 		public AssemblyInfo AssemblyInfo { get; set; }
-		
 	}
 }

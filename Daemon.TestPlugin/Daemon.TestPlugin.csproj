@@ -13,13 +13,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj" />
+        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Config.Net" Version="4.19.0" />
-        <PackageReference Include="Config.Net.Json" Version="4.19.0" />
-        <PackageReference Include="SocketIOClient" Version="3.0.5" />
+        <PackageReference Include="Config.Net" Version="4.19.0"/>
+        <PackageReference Include="Config.Net.Json" Version="4.19.0"/>
+        <PackageReference Include="SocketIOClient" Version="3.0.5"/>
     </ItemGroup>
 
     <PropertyGroup>

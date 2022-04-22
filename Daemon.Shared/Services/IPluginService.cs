@@ -7,12 +7,12 @@ public interface IPluginService {
 	Dictionary<DaemonPlugin, bool> GetPlugins();
 
 	/// <summary>
-	/// This methods loads the plugins out of the plugins folder.
+	///     This methods loads the plugins out of the plugins folder.
 	/// </summary>
 	IContainer LoadPlugins();
 
 	/// <summary>
-	/// This methods
+	///     This methods
 	/// </summary>
 	void UnloadPlugins();
 }

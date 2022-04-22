@@ -9,6 +9,7 @@ public class ReflectionsService : IReflectionsService {
 	public Type[] GetAllImplementationsOf<T>() {
 		return GetAllLoadedTypes().Where(type => typeof(T).IsAssignableFrom(type) && type != typeof(T)).ToArray();
 	}
+
 	public Type[] GetAllImplementationsInAssemblyOf<T>(Assembly assembly) {
 		return GetAllLoadedTypes().Where(type => typeof(T).IsAssignableFrom(type) && type != typeof(T) && type.Assembly == assembly).ToArray();
 	}
@@ -18,10 +19,11 @@ public class ReflectionsService : IReflectionsService {
 	}
 
 	public Dictionary<string, object> DynamicToDictionary(dynamic dynamicObject) {
-		Dictionary<string, object> dictionary = new Dictionary<string, object>();
+		Dictionary<string, object> dictionary = new();
 
-		foreach (PropertyDescriptor propertyDescriptor in TypeDescriptor.GetProperties(dynamicObject))
+		foreach (PropertyDescriptor propertyDescriptor in TypeDescriptor.GetProperties(dynamicObject)) {
 			dictionary.Add(propertyDescriptor.Name, propertyDescriptor.GetValue(dynamicObject));
+		}
 
 		return dictionary;
 	}
@@ -47,12 +49,13 @@ public class ReflectionsService : IReflectionsService {
 	}
 
 	public Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute {
-		Dictionary<PropertyInfo, TAttribute> dictionary = new Dictionary<PropertyInfo, TAttribute>();
+		Dictionary<PropertyInfo, TAttribute> dictionary = new();
 
 		foreach (PropertyInfo propertyInfo in type.GetProperties()) {
 			TAttribute? customAttribute = propertyInfo.GetCustomAttribute<TAttribute>();
-			if (customAttribute != null)
+			if (customAttribute != null) {
 				dictionary.Add(propertyInfo, customAttribute);
+			}
 		}
 
 		return dictionary;
@@ -75,7 +78,6 @@ public class ReflectionsService : IReflectionsService {
 	}
 
 	public AssemblyInfo GetAssemblyInfo(Assembly assembly) {
-		
 		return new AssemblyInfo {
 			Name = assembly.GetName().Name,
 			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,

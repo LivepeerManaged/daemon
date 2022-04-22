@@ -1,34 +1,30 @@
-﻿using System.Runtime.ExceptionServices;
-using System.Security;
-using Autofac;
+﻿using Autofac;
 using Autofac.Core.NonPublicProperty;
 using Daemon.Services;
 using Daemon.Shared.Services;
-using Hardware.Info;
 using NLog;
-using TestPlugin;
 
 namespace Daemon;
 
 /// <summary>
-/// This is the MainApp which is the central point of the Daemon
+///     This is the MainApp which is the central point of the Daemon
 /// </summary>
 public class MainApp {
-	private CancellationTokenSource ApplicationCancellationToken { get; }
-	private CancellationTokenSource SocketServerCancellationToken { get; }
-	private PluginService _pluginService;
-	private Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 	public static IContainer Container;
+	private PluginService _pluginService;
+	private readonly Logger Logger = LogManager.GetLogger(typeof(MainApp).FullName);
 
 	public MainApp(CancellationTokenSource applicationCancellationToken) {
 		ApplicationCancellationToken = applicationCancellationToken;
 		SocketServerCancellationToken = new CancellationTokenSource();
 	}
 
+	private CancellationTokenSource ApplicationCancellationToken { get; }
+	private CancellationTokenSource SocketServerCancellationToken { get; }
+
 	/// <summary>
-	/// This method starts the Daemon.
+	///     This method starts the Daemon.
 	/// </summary>
-	
 	public async Task StartApp() {
 		ContainerBuilder containerBuilder = new();
 		_pluginService = new PluginService(containerBuilder);
@@ -44,9 +40,9 @@ public class MainApp {
 				Logger.Error("Error while connecting to backend! {}", e);
 			}
 
-			Logger.Info($"Disconencted from backend! trying to reconnect...");
+			Logger.Info("Disconencted from backend! trying to reconnect...");
 			Thread.Sleep(3000);
-		//} while (!CancellationToken.IsCancellationRequested);
+			//} while (!CancellationToken.IsCancellationRequested);
 		} while (true);
 	}
 
@@ -62,7 +58,7 @@ public class MainApp {
 	}
 
 	/// <summary>
-	/// This method stops the Daemon.
+	///     This method stops the Daemon.
 	/// </summary>
 	public void StopApp() {
 		Logger.Debug("Received a termination signal");

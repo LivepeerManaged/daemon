@@ -15,21 +15,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj" />
-        <ProjectReference Include="..\Daemon.TestPlugin\Daemon.TestPlugin.csproj" />
+        <ProjectReference Include="..\Daemon.Shared\Daemon.Shared.csproj"/>
+        <ProjectReference Include="..\Daemon.TestPlugin\Daemon.TestPlugin.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="log4net.config" />
+        <None Remove="log4net.config"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="6.3.0" />
-        <PackageReference Include="NLog" Version="5.0.0-rc2" />
+        <PackageReference Include="Autofac" Version="6.3.0"/>
+        <PackageReference Include="NLog" Version="5.0.0-rc2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="nlog.config" />
+        <None Remove="nlog.config"/>
         <AdditionalFiles Include="nlog.config">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </AdditionalFiles>

@@ -14,13 +14,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="6.3.0" />
-        <PackageReference Include="Autofac.Core.NonPublicProperty" Version="2.0.0" />
-        <PackageReference Include="Hardware.Info" Version="10.0.0" />
-        <PackageReference Include="NLog" Version="5.0.0-rc2" />
-        <PackageReference Include="Config.Net" Version="4.19.0" />
-        <PackageReference Include="Config.Net.Json" Version="4.19.0" />
-        <PackageReference Include="SocketIOClient" Version="3.0.5" />
+        <PackageReference Include="Autofac" Version="6.3.0"/>
+        <PackageReference Include="Autofac.Core.NonPublicProperty" Version="2.0.0"/>
+        <PackageReference Include="Hardware.Info" Version="10.0.0"/>
+        <PackageReference Include="NLog" Version="5.0.0-rc2"/>
+        <PackageReference Include="Config.Net" Version="4.19.0"/>
+        <PackageReference Include="Config.Net.Json" Version="4.19.0"/>
+        <PackageReference Include="SocketIOClient" Version="3.0.5"/>
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.ExceptionServices;
-using System.Security;
 using System.Text.Json;
 using Daemon.Shared.Events;
 using Daemon.Shared.Services;
@@ -12,23 +10,25 @@ using TestPlugin;
 namespace Daemon.Services;
 
 public class WebsocketService : IWebsocketService {
+	private readonly List<Action<string, Event>> _anyEventList = new();
+	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
+
+	private SocketIO? _client;
+	private readonly Logger Logger = LogManager.GetLogger(typeof(WebsocketService).FullName);
 	private IDaemonService DaemonService { get; set; }
 	private IApiServerService ApiServerService { get; set; }
 	private IReflectionsService ReflectionsService { get; set; }
 	private ICommandService CommandService { get; set; }
-	private Logger Logger = LogManager.GetLogger(typeof(WebsocketService).FullName);
 
-	private SocketIO? _client;
-	private readonly Dictionary<string, List<Action<Event>>> _registeredEvents = new();
-	private readonly List<Action<string, Event>> _anyEventList = new();
 	public async Task connect(CancellationTokenSource socketServerCancellationToken) {
 		Logger.Info($"connecting to \"{DaemonService.GetWebsocketServer()}\"...");
 		Task<string> daemonLogin = ApiServerService.DaemonLogin(DaemonService.getId(), DaemonService.GetSecret());
-		
-		if(daemonLogin.IsFaulted)
+
+		if (daemonLogin.IsFaulted) {
 			throw new Exception("Cannot establish connection to backend!");
-			
-		_client = new SocketIO(DaemonService.GetWebsocketServer(), new SocketIOOptions() {
+		}
+
+		_client = new SocketIO(DaemonService.GetWebsocketServer(), new SocketIOOptions {
 			Query = new KeyValuePair<string, string>[] {
 				new("token", daemonLogin.Result)
 			},
@@ -43,48 +43,50 @@ public class WebsocketService : IWebsocketService {
 				JsonElement parameter = response.GetValue(1);
 				Type? commandTypeByName = CommandService.GetCommandTypeByName(commandName);
 
-				if (commandTypeByName == null)
+				if (commandTypeByName == null) {
 					return;
+				}
 
 				object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
 				// TODO add logging with command name and args
-				if (commandReturnValue != null)
+				if (commandReturnValue != null) {
 					response.CallbackAsync(JsonConvert.SerializeObject(commandReturnValue));
+				}
 			} catch (Exception e) {
 				Logger.Error("Error while Executing Command {} {}", response.GetValue().GetString(), e);
 			}
 		});
 
 		_client.OnConnected += (sender, args) => {
-			Logger.Info($"Successfully connected to backend!");
+			Logger.Info("Successfully connected to backend!");
 			try {
 				TriggerEvent(new DaemonReadyEvent());
 			} catch (Exception e) {
 				Logger.Error("Error while sending DaemonReadyEvent {}", e);
 			}
 		};
-		
+
 		_client.OnDisconnected += (sender, args) => {
-			Logger.Error($"Connection to backend lost! trying to reconnect...");
+			Logger.Error("Connection to backend lost! trying to reconnect...");
 		};
-		
+
 		_client.OnReconnected += (sender, args) => {
-			Logger.Info($"Sucesfully Reonnected to backend!");
+			Logger.Info("Sucesfully Reonnected to backend!");
 		};
 
 		_client.OnReconnectAttempt += (sender, args) => {
-			Logger.Info($"Trying to reconnect...!");
+			Logger.Info("Trying to reconnect...!");
 		};
-		
+
 		_client.OnReconnectError += (sender, args) => {
-			Logger.Info($"Reconecting failed!");
+			Logger.Info("Reconecting failed!");
 		};
-		
+
 		await _client.ConnectAsync();
 		socketServerCancellationToken.Token.WaitHandle.WaitOne();
 	}
 
-	public void TriggerEvent(string eventName, JsonElement json = new JsonElement()) {
+	public void TriggerEvent(string eventName, JsonElement json = new()) {
 		Type? eventTypeByName = GetEventTypeByName(eventName);
 
 		if (eventTypeByName == null) {
