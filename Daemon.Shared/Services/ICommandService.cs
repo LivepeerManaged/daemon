@@ -13,5 +13,5 @@ public interface ICommandService {
 	CommandParameterAttribute[] GetCommandParameters(Type type);
 	KeyValuePair<CommandAttribute, CommandParameterAttribute[]> GetCommandInfoForType(Type type);
 	Type? GetCommandTypeByName(string name);
-	Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands();
+	Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands();
 }

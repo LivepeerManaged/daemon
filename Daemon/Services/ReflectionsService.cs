@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using System.Security.Cryptography;
 using Daemon.Shared.Entities;
 using Daemon.Shared.Services;
 
@@ -77,12 +78,20 @@ public class ReflectionsService : IReflectionsService {
 		return GetAttributeOfProperty<TAttribute>(propertyInfo) != null;
 	}
 
-	public AssemblyInfo GetAssemblyInfo(Assembly assembly) {
-		return new AssemblyInfo {
+	public PluginInfo GetAssemblyInfo(Assembly assembly) {
+		return new PluginInfo {
+			Assembly = assembly,
+			Hash = GetHash(assembly.Location),
 			Name = assembly.GetName().Name,
 			Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
 			Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
-			Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion // Why the fuck is it this attribute and not AssemblyVersionAttribute??? 
+			Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion, // Why the fuck is it this attribute and not AssemblyVersionAttribute???
 		};
+	}
+	
+	private byte[] GetHash(string file) {
+		using MD5 md5 = MD5.Create();
+		using FileStream stream = File.OpenRead(file);
+		return md5.ComputeHash(stream);
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Runtime.Loader;
+﻿using System.Reflection;
+using System.Runtime.Loader;
 using System.Security.Cryptography;
 using Autofac;
 using Daemon.Shared.Entities;
@@ -14,13 +15,12 @@ public class PluginService : IPluginService {
 	private readonly ContainerBuilder _containerBuilder;
 	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginService).FullName);
 	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
-	private readonly Dictionary<DaemonPlugin, bool> _plugins = new();
-
+	private readonly Dictionary<DaemonPlugin, PluginInfo> _plugins = new();
 	public PluginService(ContainerBuilder containerBuilder) {
 		_containerBuilder = containerBuilder;
 	}
 
-	public Dictionary<DaemonPlugin, bool> GetPlugins() {
+	public Dictionary<DaemonPlugin, PluginInfo> GetPlugins() {
 		return _plugins;
 	}
 
@@ -40,10 +40,20 @@ public class PluginService : IPluginService {
 
 			foreach (Type pluginType in types) {
 				DaemonPlugin daemonPlugin = (DaemonPlugin) Activator.CreateInstance(pluginType)!;
-
+				Assembly assembly = pluginType.Assembly;
+				
+				PluginInfo pluginInfo = new PluginInfo {
+					Assembly = pluginType.Assembly,
+					Hash = MD5.Create().ComputeHash(File.OpenRead(assembly.Location)),
+					Name = assembly.GetName().Name,
+					Title = assembly.GetCustomAttribute<AssemblyTitleAttribute>()?.Title,
+					Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
+					Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion, // Why the fuck is it this attribute and not AssemblyVersionAttribute???
+				};
+				pluginInfo.Enabled = true;
 				try {
 					daemonPlugin.RegisterServices(_containerBuilder);
-					_plugins.Add(daemonPlugin, true);
+					_plugins.Add(daemonPlugin, pluginInfo);
 					_logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
 				} catch (Exception e) {
 					_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
@@ -53,7 +63,7 @@ public class PluginService : IPluginService {
 		}
 
 		IContainer container = _containerBuilder.Build();
-		foreach ((DaemonPlugin daemonPlugin, bool enabled) in _plugins) {
+		foreach ((DaemonPlugin daemonPlugin, PluginInfo _) in _plugins) {
 			try {
 				container.InjectUnsetProperties(daemonPlugin);
 				daemonPlugin.OnPluginLoad(container);
@@ -72,33 +82,27 @@ public class PluginService : IPluginService {
 	///     This methods
 	/// </summary>
 	public void UnloadPlugins() {
-		foreach ((DaemonPlugin currentPlugin, bool enabled) in _plugins) {
-			_plugins[currentPlugin] = false;
+		foreach ((DaemonPlugin currentPlugin, PluginInfo info) in _plugins) {
+			//_plugins[currentPlugin].Enabled = false;
+			info.Enabled = false; // TODO check if this works instead ob the above
 			currentPlugin.OnPluginDisable();
 		}
 	}
 
-	private byte[] GetHash(string file) {
-		using MD5 md5 = MD5.Create();
-		using FileStream stream = File.OpenRead(file);
-		return md5.ComputeHash(stream);
-	}
 
-	private FileInfo[] GetPluginsInFolder() {
-		Dictionary<FileInfo, byte[]> foundPlugins = new();
+	private List<FileInfo> GetPluginsInFolder() {
+		List<FileInfo> foundPlugins = new();
 
 		foreach (FileInfo assemblyFile in _pluginDirectory.GetFiles("*.plugin.dll", SearchOption.AllDirectories)) {
-			byte[] hash = GetHash(assemblyFile.FullName);
+			_logger.Info($"Found Plugin \"{assemblyFile.Name}\"");
 
-			if (foundPlugins.ContainsValue(hash)) {
-				continue;
-			}
-
-			_logger.Info($"Found Plugin \"{assemblyFile.Name}\" [{BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant()}]");
-
-			foundPlugins.Add(assemblyFile, hash);
+			foundPlugins.Add(assemblyFile);
 		}
 
-		return foundPlugins.Keys.ToArray();
+		return foundPlugins;
+	}
+
+	public DaemonPlugin GetPluginByName(string name) {
+		return _plugins.First(pair => pair.Value.Name == name).Key;
 	}
 }

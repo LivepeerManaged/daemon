@@ -9,11 +9,13 @@ public class GetAllPluginsCommand : ICommand {
 	public IPluginService PluginService { get; set; }
 	public IReflectionsService ReflectionsService { get; set; }
 	public ICommandService CommandService { get; set; }
+	public IStatusService StatusService { get; set; }
+	public IConfigService ConfigService { get; set; }
 
 	public object onCommand() {
 		List<dynamic> result = new();
-		foreach ((DaemonPlugin? daemonPlugin, bool enabled) in PluginService.GetPlugins()) {
-			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(daemonPlugin.GetType().Assembly);
+		foreach ((DaemonPlugin? daemonPlugin, PluginInfo info) in PluginService.GetPlugins()) {
+			Entities.PluginInfo pluginInfo = ReflectionsService.GetAssemblyInfo(daemonPlugin.GetType().Assembly);
 			Dictionary<CommandAttribute, CommandParameterAttribute[]> commandsFromPlugin = CommandService.GetCommandsFromPluginAssembly(daemonPlugin.GetType().Assembly);
 			/*
 			 * If anyone knows a cleaner solution please tell me.
@@ -28,30 +30,27 @@ public class GetAllPluginsCommand : ICommand {
 				commandInfo.Parameter = new List<dynamic>();
 				foreach (CommandParameterAttribute commandParameterAttribute in parameters) {
 					commandInfo.Parameter.Add(new {
-						commandParameterAttribute.Name,
-						commandParameterAttribute.Description,
-						commandParameterAttribute.Optional,
-						commandParameterAttribute.DefaultValue
+						name = commandParameterAttribute.Name,
+						description = commandParameterAttribute.Description,
+						optional = commandParameterAttribute.Optional,
+						defaultValue = commandParameterAttribute.DefaultValue,
 					});
 				}
-
 				commands.Add(commandInfo);
 			}
 
 			result.Add(new {
-				assemblyInfo.Name,
-				assemblyInfo.Title,
-				assemblyInfo.Description,
-				assemblyInfo.Version,
-				Enabled = enabled,
-				Commands = commands
+				name = pluginInfo.Name,
+				title = pluginInfo.Title,
+				description = pluginInfo.Description,
+				version = pluginInfo.Version,
+				enabled = info.Enabled,
+				commands,
+				status = StatusService.GetStatus(daemonPlugin.GetType()),
+				config = ConfigService.GetConfig(daemonPlugin.GetType())
 			});
 		}
 
 		return result;
-	}
-
-	private class PluginInfo {
-		public AssemblyInfo AssemblyInfo { get; set; }
 	}
 }

@@ -1,7 +1,8 @@
 ﻿using Daemon.Shared.Events;
 
-namespace TestPlugin;
+namespace Daemon.Events;
 
 [Event("DaemonReady")]
 public class DaemonReadyEvent : Event {
+	
 }

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using Daemon.Events;
 using Daemon.Shared.Events;
 using Daemon.Shared.Services;
 using Newtonsoft.Json;

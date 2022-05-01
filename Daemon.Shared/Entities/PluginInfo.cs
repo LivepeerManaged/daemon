@@ -1,6 +1,11 @@
-﻿namespace Daemon.Shared.Entities;
+﻿using System.Reflection;
 
-public class AssemblyInfo {
+namespace Daemon.Shared.Entities;
+
+public class PluginInfo {
+	public bool Enabled { get; set; }
+	public Assembly Assembly { get; set; }
+	public byte[] Hash { get; set; }
 	public string Name { get; set; }
 	public string Title { get; set; }
 	public string Description { get; set; }

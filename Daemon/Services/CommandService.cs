@@ -45,13 +45,13 @@ public class CommandService : ICommandService {
 		return new KeyValuePair<CommandAttribute, CommandParameterAttribute[]>(GetCommandAttribute(type), GetCommandParameters(type));
 	}
 
-	public Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands() {
+	public Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands() {
 		Type[] commandTypes = ReflectionsService.GetAllImplementationsOf<ICommand>();
-		Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> commandInfos = new();
+		Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> commandInfos = new();
 
 		foreach (Type commandType in commandTypes) {
-			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
-			commandInfos.Add(assemblyInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
+			PluginInfo pluginInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
+			commandInfos.Add(pluginInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
 		}
 
 		return commandInfos;

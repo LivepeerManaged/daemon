@@ -55,6 +55,7 @@ public class MainApp {
 		containerBuilder.RegisterType<ApiServerService>().As<IApiServerService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<ReflectionsService>().As<IReflectionsService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 		containerBuilder.RegisterType<CommandService>().As<ICommandService>().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
+		containerBuilder.RegisterType<StatusService>().As<IStatusService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 	}
 
 	/// <summary>

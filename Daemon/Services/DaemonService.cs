@@ -26,8 +26,8 @@ public class DaemonService : IDaemonService {
 		return new Uri(GetApiServer(), "daemon");
 	}
 
-	public IDaemonConfig GetConfig() {
-		return ConfigService.GetConfig<IDaemonConfig>("Daemon");
+	private IDaemonConfig GetConfig() {
+		return ConfigService.GetConfig<IDaemonConfig>();
 	}
 
 	public string GetSecret() {
@@ -38,7 +38,7 @@ public class DaemonService : IDaemonService {
 		return GetConfig().DaemonId;
 	}
 
-	public AssemblyInfo GetDaemonInfo() {
-		return ReflectionsService.GetAssemblyInfo(Assembly.GetEntryAssembly());
+	public PluginInfo GetDaemonInfo() {
+		return ReflectionsService.GetAssemblyInfo(Assembly.GetEntryAssembly()!);
 	}
 }
