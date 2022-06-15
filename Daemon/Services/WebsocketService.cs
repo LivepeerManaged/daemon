@@ -2,10 +2,13 @@
 using System.Text.Json;
 using Daemon.Events;
 using Daemon.Shared.Events;
+using Daemon.Shared.Exceptions;
 using Daemon.Shared.Services;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using NLog;
 using SocketIOClient;
+using SocketIOClient.Newtonsoft.Json;
 using TestPlugin;
 
 namespace Daemon.Services;
@@ -37,28 +40,52 @@ public class WebsocketService : IWebsocketService {
 			ReconnectionDelay = 1000
 		});
 
+		_client.JsonSerializer =  new NewtonsoftJsonSerializer {
+			OptionsProvider = () => new JsonSerializerSettings {
+				ContractResolver = new DefaultContractResolver {
+					NamingStrategy = new CamelCaseNamingStrategy()
+				}
+			}
+		};
+
 		_client.On("TriggerCommand", response => {
-			// TODO error handling for missing commandname
 			try {
 				string commandName = response.GetValue().ToString();
 				JsonElement parameter = response.GetValue(1);
 				Type? commandTypeByName = CommandService.GetCommandTypeByName(commandName);
+				Logger.Debug($"Triggering command \"{commandName}\"...", parameter);
 
 				if (commandTypeByName == null) {
+					CommandNotFoundException commandNotFoundException = new CommandNotFoundException(commandName);
+					Logger.Error(commandNotFoundException);
+					_client.EmitAsync("error", commandNotFoundException.Message);
+					response.CallbackAsync(new {
+						Success = false,
+						Error = commandNotFoundException.Message
+					});
 					return;
 				}
 
 				object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
-				// TODO add logging with command name and args
+
 				if (commandReturnValue != null) {
-					response.CallbackAsync(JsonConvert.SerializeObject(commandReturnValue));
+					response.CallbackAsync(new {
+						Success = true,
+						Data = commandReturnValue
+					});
 				}
 			} catch (Exception e) {
 				Logger.Error("Error while Executing Command {} {}", response.GetValue().GetString(), e);
+				response.CallbackAsync(new {
+					Success = false,
+					Error = e.Message
+				});
 			}
 		});
 
 		_client.OnConnected += (sender, args) => {
+			Console.WriteLine(args);
+			Console.WriteLine(args.GetType());
 			Logger.Info("Successfully connected to backend!");
 			try {
 				TriggerEvent(new DaemonReadyEvent());
@@ -76,7 +103,7 @@ public class WebsocketService : IWebsocketService {
 		};
 
 		_client.OnReconnectAttempt += (sender, args) => {
-			Logger.Info("Trying to reconnect...!");
+			Logger.Info("Trying to reconnect...");
 		};
 
 		_client.OnReconnectError += (sender, args) => {

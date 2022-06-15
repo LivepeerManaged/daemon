@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text.Json;
+using Daemon.Shared.Attributes;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
 
@@ -13,5 +14,5 @@ public interface ICommandService {
 	CommandParameterAttribute[] GetCommandParameters(Type type);
 	KeyValuePair<CommandAttribute, CommandParameterAttribute[]> GetCommandInfoForType(Type type);
 	Type? GetCommandTypeByName(string name);
-	Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands();
+	Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands();
 }

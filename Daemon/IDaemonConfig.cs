@@ -1,4 +1,6 @@
-﻿namespace Daemon.Shared.Entities;
+﻿using Daemon.Shared.Entities;
+
+namespace Daemon;
 
 public interface IDaemonConfig: IPluginConfig {
 	public string DaemonId { get; set; }

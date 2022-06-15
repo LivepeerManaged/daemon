@@ -2,8 +2,10 @@
 using System.Text.Json;
 using Autofac;
 using Castle.Core.Internal;
+using Daemon.Shared.Attributes;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
+using Daemon.Shared.Exceptions;
 using Daemon.Shared.Services;
 
 namespace Daemon.Services;
@@ -17,7 +19,7 @@ public class CommandService : ICommandService {
 		Type? findCommandTypeByName = GetCommandTypeByName(name);
 
 		if (findCommandTypeByName == null) {
-			throw new Exception("Command not found [replace this with real exception!]");
+			throw new CommandNotFoundException(name);
 		}
 
 		ICommand instance = MainApp.Container.InjectUnsetProperties((Activator.CreateInstance(findCommandTypeByName) as ICommand)!);
@@ -45,13 +47,13 @@ public class CommandService : ICommandService {
 		return new KeyValuePair<CommandAttribute, CommandParameterAttribute[]>(GetCommandAttribute(type), GetCommandParameters(type));
 	}
 
-	public Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands() {
+	public Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> GetAllCommands() {
 		Type[] commandTypes = ReflectionsService.GetAllImplementationsOf<ICommand>();
-		Dictionary<PluginInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> commandInfos = new();
+		Dictionary<AssemblyInfo, Dictionary<CommandAttribute, CommandParameterAttribute[]>> commandInfos = new();
 
 		foreach (Type commandType in commandTypes) {
-			PluginInfo pluginInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
-			commandInfos.Add(pluginInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
+			AssemblyInfo assemblyInfo = ReflectionsService.GetAssemblyInfo(commandType.Assembly);
+			commandInfos.Add(assemblyInfo, GetCommandsFromPluginAssembly(commandType.Assembly));
 		}
 
 		return commandInfos;
@@ -70,9 +72,8 @@ public class CommandService : ICommandService {
 
 	private ICommand BindCommandParameter(ICommand command, Dictionary<string, JsonElement> parameters) {
 		Dictionary<PropertyInfo, CommandParameterAttribute> propertiesWithAttributes = ReflectionsService.GetPropertiesWithAttributes<CommandParameterAttribute>(command.GetType());
-
-		foreach ((string key, JsonElement value) in parameters.Where(parameterPair => propertiesWithAttributes.Any(valuePair => valuePair.Value.Name == parameterPair.Key))) {
-			PropertyInfo propertyInfo = propertiesWithAttributes.First(pair => pair.Value.Name == key).Key;
+		foreach ((string key, JsonElement value) in parameters.Where(parameterPair => propertiesWithAttributes.Any(valuePair => valuePair.Value.Name.Equals(parameterPair.Key, StringComparison.OrdinalIgnoreCase)))) {
+			PropertyInfo propertyInfo = propertiesWithAttributes.First(pair => pair.Value.Name.Equals(key, StringComparison.OrdinalIgnoreCase)).Key;
 			propertyInfo.SetValue(command, value.Deserialize(propertyInfo.PropertyType));
 		}
 

@@ -1,4 +1,5 @@
-﻿using Daemon.Shared.Commands;
+﻿using Daemon.Shared.Attributes;
+using Daemon.Shared.Commands;
 using Daemon.Shared.Services;
 
 namespace Daemon.Commands;
@@ -13,6 +14,6 @@ public class GetStatusCommand : ICommand {
 	public IPluginService PluginService { get; set; }
 
 	public object onCommand() {
-		return StatusService.GetStatus(PluginService.GetPluginByName(PluginName).GetType());
+		return StatusService.GetStatus(PluginService.GetPluginByName(PluginName).Key.GetType());
 	}
 }

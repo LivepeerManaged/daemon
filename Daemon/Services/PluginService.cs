@@ -3,6 +3,7 @@ using System.Runtime.Loader;
 using System.Security.Cryptography;
 using Autofac;
 using Daemon.Shared.Entities;
+using Daemon.Shared.Exceptions;
 using Daemon.Shared.Services;
 using NLog;
 
@@ -15,12 +16,12 @@ public class PluginService : IPluginService {
 	private readonly ContainerBuilder _containerBuilder;
 	private readonly Logger _logger = LogManager.GetLogger(typeof(PluginService).FullName);
 	private readonly DirectoryInfo _pluginDirectory = new(Path.Combine(Environment.CurrentDirectory, "plugins"));
-	private readonly Dictionary<DaemonPlugin, PluginInfo> _plugins = new();
+	private readonly Dictionary<DaemonPlugin, AssemblyInfo> _plugins = new();
 	public PluginService(ContainerBuilder containerBuilder) {
 		_containerBuilder = containerBuilder;
 	}
 
-	public Dictionary<DaemonPlugin, PluginInfo> GetPlugins() {
+	public Dictionary<DaemonPlugin, AssemblyInfo> GetPlugins() {
 		return _plugins;
 	}
 
@@ -42,7 +43,7 @@ public class PluginService : IPluginService {
 				DaemonPlugin daemonPlugin = (DaemonPlugin) Activator.CreateInstance(pluginType)!;
 				Assembly assembly = pluginType.Assembly;
 				
-				PluginInfo pluginInfo = new PluginInfo {
+				AssemblyInfo assemblyInfo = new AssemblyInfo {
 					Assembly = pluginType.Assembly,
 					Hash = MD5.Create().ComputeHash(File.OpenRead(assembly.Location)),
 					Name = assembly.GetName().Name,
@@ -50,10 +51,10 @@ public class PluginService : IPluginService {
 					Description = assembly.GetCustomAttribute<AssemblyDescriptionAttribute>()?.Description,
 					Version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion, // Why the fuck is it this attribute and not AssemblyVersionAttribute???
 				};
-				pluginInfo.Enabled = true;
+				assemblyInfo.Enabled = true;
 				try {
 					daemonPlugin.RegisterServices(_containerBuilder);
-					_plugins.Add(daemonPlugin, pluginInfo);
+					_plugins.Add(daemonPlugin, assemblyInfo);
 					_logger.Debug($"Successfully loaded plugin \"{pluginType.Assembly.GetName()}\"!");
 				} catch (Exception e) {
 					_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");
@@ -63,7 +64,7 @@ public class PluginService : IPluginService {
 		}
 
 		IContainer container = _containerBuilder.Build();
-		foreach ((DaemonPlugin daemonPlugin, PluginInfo _) in _plugins) {
+		foreach ((DaemonPlugin daemonPlugin, AssemblyInfo _) in _plugins) {
 			try {
 				container.InjectUnsetProperties(daemonPlugin);
 				daemonPlugin.OnPluginLoad(container);
@@ -82,7 +83,7 @@ public class PluginService : IPluginService {
 	///     This methods
 	/// </summary>
 	public void UnloadPlugins() {
-		foreach ((DaemonPlugin currentPlugin, PluginInfo info) in _plugins) {
+		foreach ((DaemonPlugin currentPlugin, AssemblyInfo info) in _plugins) {
 			//_plugins[currentPlugin].Enabled = false;
 			info.Enabled = false; // TODO check if this works instead ob the above
 			currentPlugin.OnPluginDisable();
@@ -102,7 +103,11 @@ public class PluginService : IPluginService {
 		return foundPlugins;
 	}
 
-	public DaemonPlugin GetPluginByName(string name) {
-		return _plugins.First(pair => pair.Value.Name == name).Key;
+	public KeyValuePair<DaemonPlugin, AssemblyInfo> GetPluginByName(string name) {
+		try {
+			return GetPlugins().First(pair => pair.Value.Name == name);
+		} catch (InvalidOperationException e) {
+			throw new PluginNotFoundException(name);
+		}
 	}
 }

@@ -52,7 +52,7 @@ public class ReflectionsService : IReflectionsService {
 	public Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute {
 		Dictionary<PropertyInfo, TAttribute> dictionary = new();
 
-		foreach (PropertyInfo propertyInfo in type.GetProperties()) {
+		foreach (PropertyInfo propertyInfo in type.GetProperties(BindingFlags.Public | BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic)) {
 			TAttribute? customAttribute = propertyInfo.GetCustomAttribute<TAttribute>();
 			if (customAttribute != null) {
 				dictionary.Add(propertyInfo, customAttribute);
@@ -78,8 +78,8 @@ public class ReflectionsService : IReflectionsService {
 		return GetAttributeOfProperty<TAttribute>(propertyInfo) != null;
 	}
 
-	public PluginInfo GetAssemblyInfo(Assembly assembly) {
-		return new PluginInfo {
+	public AssemblyInfo GetAssemblyInfo(Assembly assembly) {
+		return new AssemblyInfo {
 			Assembly = assembly,
 			Hash = GetHash(assembly.Location),
 			Name = assembly.GetName().Name,

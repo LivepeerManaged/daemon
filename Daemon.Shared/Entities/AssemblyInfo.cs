@@ -2,7 +2,7 @@
 
 namespace Daemon.Shared.Entities;
 
-public class PluginInfo {
+public class AssemblyInfo {
 	public bool Enabled { get; set; }
 	public Assembly Assembly { get; set; }
 	public byte[] Hash { get; set; }

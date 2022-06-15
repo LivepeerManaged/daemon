@@ -16,5 +16,5 @@ public interface IReflectionsService {
 	Dictionary<PropertyInfo, TAttribute> GetPropertiesWithAttributes<TAttribute>(Type type) where TAttribute : Attribute;
 	bool HasAttribute<TAttribute>(Type type) where TAttribute : Attribute;
 	bool HasAttribute<TAttribute>(PropertyInfo propertyInfo) where TAttribute : Attribute;
-	public PluginInfo GetAssemblyInfo(Assembly assembly);
+	public AssemblyInfo GetAssemblyInfo(Assembly assembly);
 }

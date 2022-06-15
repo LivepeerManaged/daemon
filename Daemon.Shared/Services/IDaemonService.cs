@@ -1,4 +1,5 @@
-﻿using Daemon.Shared.Entities;
+﻿using Daemon.Entities;
+using Daemon.Shared.Entities;
 
 namespace Daemon.Shared.Services;
 
@@ -7,5 +8,6 @@ public interface IDaemonService {
 	Uri GetWebsocketServer();
 	string GetSecret();
 	string getId();
-	PluginInfo GetDaemonInfo();
+	DaemonInfo GetDaemonInfo();
+	DaemonSystemInformation GetSystemInfo();
 }

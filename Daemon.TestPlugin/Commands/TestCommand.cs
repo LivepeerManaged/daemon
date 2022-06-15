@@ -1,4 +1,6 @@
-﻿namespace Daemon.Shared.Commands;
+﻿using Daemon.Shared.Attributes;
+
+namespace Daemon.Shared.Commands;
 
 [Command("Test", "Test description yay")]
 public class TestCommand : ICommand {

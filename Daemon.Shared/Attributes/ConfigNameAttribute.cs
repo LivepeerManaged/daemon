@@ -6,5 +6,5 @@ public class ConfigNameAttribute : Attribute {
 		ConfigName = configName;
 	}
 
-	public string? ConfigName { get; }
+	public string ConfigName { get; }
 }

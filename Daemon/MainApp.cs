@@ -1,8 +1,12 @@
-﻿using Autofac;
+﻿using System.Reflection;
+using Autofac;
 using Autofac.Core.NonPublicProperty;
 using Daemon.Services;
+using Daemon.Shared.Attributes;
+using Daemon.Shared.Entities;
 using Daemon.Shared.Services;
 using NLog;
+using TestPlugin.Config;
 
 namespace Daemon;
 
@@ -28,10 +32,11 @@ public class MainApp {
 	public async Task StartApp() {
 		ContainerBuilder containerBuilder = new();
 		_pluginService = new PluginService(containerBuilder);
-
+		
 		registerServices(containerBuilder);
 		Container = _pluginService.LoadPlugins();
 		IWebsocketService websocketService = Container.Resolve<IWebsocketService>();
+
 		do {
 			try {
 				// TODO Reset the token here because it might can cause problems after disconnecting... more testing required
