@@ -34,7 +34,7 @@ public class MainApp {
 		_pluginService = new PluginService(containerBuilder);
 		
 		registerServices(containerBuilder);
-		Container = _pluginService.LoadPlugins();
+		Container = await _pluginService.LoadPlugins();
 		IWebsocketService websocketService = Container.Resolve<IWebsocketService>();
 
 		do {

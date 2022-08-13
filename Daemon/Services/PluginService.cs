@@ -28,7 +28,7 @@ public class PluginService : IPluginService {
 	/// <summary>
 	///     This methods loads the plugins out of the plugins folder.
 	/// </summary>
-	public IContainer LoadPlugins() {
+	public async Task<IContainer> LoadPlugins() {
 		if (!_pluginDirectory.Exists) {
 			_logger.Info("Creating Plugins folder...");
 			_pluginDirectory.Create();
@@ -67,7 +67,7 @@ public class PluginService : IPluginService {
 		foreach ((DaemonPlugin daemonPlugin, AssemblyInfo _) in _plugins) {
 			try {
 				container.InjectUnsetProperties(daemonPlugin);
-				daemonPlugin.OnPluginLoad(container);
+				await daemonPlugin.OnPluginLoad(container);
 				_logger.Info($"Successfully started Plugin \"{daemonPlugin.GetType().FullName}\"!");
 			} catch (Exception e) {
 				_logger.Fatal($"During the start of plugin \"{daemonPlugin.GetType().FullName}\" an error occured");

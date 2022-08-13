@@ -7,7 +7,7 @@ namespace Daemon.Shared.Entities;
 /// </summary>
 public abstract class DaemonPlugin {
 	public abstract void RegisterServices(ContainerBuilder containerBuilder);
-	public abstract void OnPluginLoad(IContainer container);
+	public abstract Task OnPluginLoad(IContainer container);
 
 	public abstract void OnPluginDisable();
 }

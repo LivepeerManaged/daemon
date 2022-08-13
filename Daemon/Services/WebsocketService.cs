@@ -65,7 +65,6 @@ public class WebsocketService : IWebsocketService {
 					});
 					return;
 				}
-
 				object? commandReturnValue = CommandService.TriggerCommand(commandName, parameter.Deserialize<Dictionary<string, JsonElement>>());
 
 				if (commandReturnValue != null) {

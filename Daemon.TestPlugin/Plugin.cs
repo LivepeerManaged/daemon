@@ -1,16 +1,18 @@
 ﻿using Autofac;
+using Autofac.Core.NonPublicProperty;
 using Daemon.Shared.Entities;
-using Daemon.Shared.Services;
+using TestPlugin.Service;
 
 namespace TestPlugin;
 
 public class Plugin : DaemonPlugin {
 	public override void RegisterServices(ContainerBuilder containerBuilder) {
+		containerBuilder.RegisterType<UpdaterService>().SingleInstance().PropertiesAutowired(PropertyWiringOptions.AllowCircularDependencies).AutoWireNonPublicProperties();
 	}
 
-	public override void OnPluginLoad(IContainer container) {
-		IStatusService statusService = container.Resolve<IStatusService>();
-		statusService.SetStatus<Plugin>("Test", "LOL");
+	public override async Task OnPluginLoad(IContainer container) {
+		UpdaterService updaterService = container.Resolve<UpdaterService>();
+		await updaterService.EnsureGoLivepeer();
 	}
 
 	public override void OnPluginDisable() {

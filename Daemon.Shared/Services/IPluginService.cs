@@ -11,7 +11,7 @@ public interface IPluginService {
 	/// <summary>
 	///     This methods loads the plugins out of the plugins folder.
 	/// </summary>
-	IContainer LoadPlugins();
+	Task<IContainer> LoadPlugins();
 
 	/// <summary>
 	///     This methods

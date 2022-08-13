@@ -6,17 +6,21 @@ namespace TestPlugin.Config;
 
 [ConfigName("TestConfig")]
 public interface ITestPluginConfig : IPluginConfig {
-	[ConfigOption(Description = "Testing this boolean")]
-	public bool TestBoolean { get; set; }
+	[ConfigOption(Description = "Eth Address", Optional = false)]
+	public string Address { get; set; }
+	
+	[ConfigOption(Description = "Orchestrator IP Address", Optional = false)]
+	public string OrchAddr { get; set; }
 
-	[ConfigOption(Description = "Testing", Optional = true, DefaultValue = "DEFAULT IS THIS")]
-	public string TestString { get; set; }
+	[ConfigOption(Description = "Orchestrator Secret", Optional = false)]
+	public string OrchSecret { get; set; }
+	
+	[ConfigOption(Description = "Max Sessions", Optional = false, Min = 0)]
+	public int MaxSessions { get; set; }
+	
+	[ConfigOption(Description = "Seperated ',' list of gpus to use (or 'all')", DefaultValue = "0")]
+	public string Nvidia { get; set; }
 
-	[ConfigOption(Description = "Testing Int")]
-	public int TestInt { get; set; }
-
-	[ConfigOption(Description = "Testing Double", Min = 100, Max = 100)]
-	public double TestDouble { get; set; }
-
-	public float TestFloat { get; set; }
+	[ConfigOption(Description = "Enable Monitoring", DefaultValue = false)]
+	public bool Monitoring { get; set; }
 }

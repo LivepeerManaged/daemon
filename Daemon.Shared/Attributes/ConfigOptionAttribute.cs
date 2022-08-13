@@ -4,7 +4,7 @@
 public class ConfigOptionAttribute : Attribute {
 	public string Description { get; set; }
 
-	public object? DefaultValue { get; set; }
+	public object DefaultValue { get; set; }
 
 	public bool Optional { get; set; }
 
@@ -20,6 +20,13 @@ public class ConfigOptionAttribute : Attribute {
 	public float Max {
 		get => _Max ?? 0;
 		set => _Max = value;
+	}
+
+	public float? _Step { get; set; }
+
+	public float Step {
+		get => _Step ?? 0;
+		set => _Step = value;
 	}
 
 	public bool MustBePositive { get; set; }

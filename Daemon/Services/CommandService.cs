@@ -74,7 +74,10 @@ public class CommandService : ICommandService {
 		Dictionary<PropertyInfo, CommandParameterAttribute> propertiesWithAttributes = ReflectionsService.GetPropertiesWithAttributes<CommandParameterAttribute>(command.GetType());
 		foreach ((string key, JsonElement value) in parameters.Where(parameterPair => propertiesWithAttributes.Any(valuePair => valuePair.Value.Name.Equals(parameterPair.Key, StringComparison.OrdinalIgnoreCase)))) {
 			PropertyInfo propertyInfo = propertiesWithAttributes.First(pair => pair.Value.Name.Equals(key, StringComparison.OrdinalIgnoreCase)).Key;
-			propertyInfo.SetValue(command, value.Deserialize(propertyInfo.PropertyType));
+
+			propertyInfo.SetValue(command, value.Deserialize(propertyInfo.PropertyType, new JsonSerializerOptions {
+				PropertyNameCaseInsensitive = true,
+			}));
 		}
 
 		return command;

@@ -1,12 +1,10 @@
 ﻿using System.Dynamic;
 using System.Reflection;
+using Daemon.CommandsDto;
 using Daemon.Shared.Attributes;
 using Daemon.Shared.Commands;
 using Daemon.Shared.Entities;
-using Daemon.Shared.Exceptions;
 using Daemon.Shared.Services;
-using Newtonsoft.Json.Converters;
-using TestPlugin.Config;
 
 namespace Daemon.Commands;
 
@@ -60,42 +58,54 @@ public class GetPluginsCommand : ICommand {
 			commands.Add(commandInfo);
 		}
 
-		Dictionary<string, Dictionary<string, dynamic>> configList = new Dictionary<string, Dictionary<string, dynamic>>();
-		foreach ((Type configType, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>> value) in ConfigService.GetPropertiesWithOptions(daemonPlugin.GetType())) {
-			Dictionary<string, dynamic> configDictionary = new Dictionary<string, dynamic>();
-			foreach ((dynamic _, Dictionary<PropertyInfo, ConfigOptionAttribute> attributes) in value) {
+		//(Type? _, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>>? propertyOptions) = ConfigService.GetPropertiesWithOptions(daemonPlugin.GetType()).First();
+		List<ConfigDto> configList = new List<ConfigDto>();
+
+		foreach ((Type configType, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>> propertyOptions) in ConfigService.GetPropertiesWithOptions(daemonPlugin.GetType())) {
+			List<ConfigPropertyDto> configProperties = new List<ConfigPropertyDto>();
+			foreach ((dynamic configInstance, Dictionary<PropertyInfo, ConfigOptionAttribute> attributes) in propertyOptions) {
 				foreach ((PropertyInfo? propertyInfo, ConfigOptionAttribute? attribute) in attributes) {
-					Dictionary<string,object> options = new Dictionary<string, object>();
-					
-					// No Rider... this CAN absolutely be null. If you look you can actually the the little `?` behind the name so its NULLABLE
-					if (attribute != null) {
-						options.Add("Description", attribute.Description);
-						options.Add("DefaultValue", attribute.DefaultValue);
-						options.Add("Optional", attribute.Optional);
-						options.Add("MustBePositive", attribute.MustBePositive);
-						options.Add("MustBeNegative", attribute.MustBeNegative);
-						
-						if (attribute._Min.HasValue)
-							options.Add("Min", attribute._Min.Value);
-						
-						if (attribute._Max.HasValue)
-							options.Add("Max", attribute._Max.Value);
-						
-						configDictionary.Add(propertyInfo.Name, new {
-							Type = propertyInfo.PropertyType.Name,
-							Options = options
-						});
+					ConfigPropertyDto configPropertyDto = new ConfigPropertyDto {
+						Name = propertyInfo.Name,
+						Value = propertyInfo.GetValue(configInstance) ?? attribute.DefaultValue,
+						Description = attribute?.Description ?? "",
+						DefaultValue = attribute?.DefaultValue ?? null,
+						Optional = attribute?.Optional == false
+					};
+
+					if (propertyInfo.PropertyType == typeof(string)) {
+						configPropertyDto.Type = "string";
+					} else if (propertyInfo.PropertyType == typeof(bool)) {
+						configPropertyDto.Type = "boolean";
+						Console.WriteLine(configPropertyDto.Value != null);
+						Console.WriteLine(configPropertyDto.Value);
+					} else if (propertyInfo.PropertyType == typeof(int)) {
+						configPropertyDto.Type = "integer";
+					} else if (propertyInfo.PropertyType == typeof(double)) {
+						configPropertyDto.Type = "double";
+					} else if (propertyInfo.PropertyType == typeof(float)) {
+						configPropertyDto.Type = "float";
+					} else if (propertyInfo.PropertyType == typeof(long)) {
+						configPropertyDto.Type = "long";
 					} else {
-						configDictionary.Add(propertyInfo.Name, new {
-							Type = propertyInfo.PropertyType.Name,
-						});
+						Console.WriteLine("Warning! " + propertyInfo.PropertyType + " IS NOT ADDED!");
 					}
+
+					if (attribute != null) {
+						configPropertyDto.Min = attribute._Min.HasValue ? attribute._Min.Value : null;
+						configPropertyDto.Max = attribute._Max.HasValue ? attribute._Max.Value : null;
+						configPropertyDto.Step = attribute._Step.HasValue ? attribute._Step.Value : null;
+					}
+
+
+					configProperties.Add(configPropertyDto);
 				}
-				
+				configList.Add(new ConfigDto {
+					Name = ConfigService.GetConfigName(configType),
+					Properties = configProperties
+				});
 			}
-			configList.Add(ConfigService.GetConfigName(configType), configDictionary);
 		}
-		
 
 		return new {
 			name = assemblyInfo.Name,

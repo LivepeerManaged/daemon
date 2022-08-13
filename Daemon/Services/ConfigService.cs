@@ -28,14 +28,14 @@ public class ConfigService : IConfigService {
 		return (TT) value;
 	}
 
-	private Type[] GetConfigClassesForPlugin(Type type) {
+	private Type[] GetConfigClassesForType(Type type) {
 		return ReflectionsService.GetAllImplementationsInAssemblyOf<IPluginConfig>(type.Assembly);
 	}
 
 	public Dictionary<string, IPluginConfig> GetConfig(Type type) {
 		Dictionary<string, IPluginConfig> pluginConfigs = new Dictionary<string, IPluginConfig>();
-		foreach (Type configType in GetConfigClassesForPlugin(type)) {
-			pluginConfigs.Add(GetConfigName(type), GetStoreForConfig(configType)).Build();
+		foreach (Type configType in GetConfigClassesForType(type)) {
+			pluginConfigs.Add(GetConfigName(configType), GetStoreForConfig(configType));
 		}
 
 		return pluginConfigs;
@@ -44,7 +44,7 @@ public class ConfigService : IConfigService {
 	public Dictionary<Type, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>>> GetPropertiesWithOptions(Type type) {
 		Dictionary<Type, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>>> config = new Dictionary<Type, Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>>>();
 
-		foreach (Type configType in GetConfigClassesForPlugin(type)) {
+		foreach (Type configType in GetConfigClassesForType(type)) {
 			config.Add(configType, new Dictionary<dynamic, Dictionary<PropertyInfo, ConfigOptionAttribute>>());
 			config[configType].Add(GetStoreForConfig(configType), GetPropertyAttributes(configType));
 		}
